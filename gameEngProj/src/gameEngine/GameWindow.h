@@ -11,7 +11,7 @@ namespace gameEngine{
 		EventManager* manager;
 		//Camera* winCam;
 		Camera* winCam;
-		std::vector<Quad*> renderObj;
+		std::vector<ObjectRender*> renderObj;
 	private:
 		int glMajorVer = 4;
 		int glMinorVer = 4;
@@ -70,7 +70,7 @@ namespace gameEngine{
 			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
 			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 		}
-		void addRenderObj(Quad*iop) {
+		void addRenderObj(ObjectRender *iop) {
 			renderObj.push_back(iop);
 		}
 		virtual void preRender(){}
@@ -78,6 +78,7 @@ namespace gameEngine{
 		void render() {
 			while (!glfwWindowShouldClose(window)) {
 				glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+				glEnable(GL_DEPTH_TEST);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 				manager->handleKeyboardInput(window);
 				manager->handleKeyboardEvents();

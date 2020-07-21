@@ -1,8 +1,19 @@
 #pragma once
 #include"Shader.h"
 #include"Texture.h"
+#include"Model.h"
+
 namespace gameEngine {
-	class FUN_API Quad :public GameObj {
+	class FUN_API ObjectRender :public GameObj {
+	public:
+		virtual void updateModelMatrix() {}
+		virtual void Draw() {}
+		virtual Shader* getShader() { return NULL; }
+		virtual ~ObjectRender(){}
+	};
+
+
+	class FUN_API Quad :public ObjectRender {
 		Shader* shady;
 		unsigned int vao;
 		unsigned int vbo;
@@ -77,6 +88,38 @@ namespace gameEngine {
 			glDeleteBuffers(1, &vbo);
 			glDeleteBuffers(1, &ibo);
 			glDeleteVertexArrays(1, &vao);
+		}
+	};
+
+	class FUN_API modelLoader :public ObjectRender {
+		Model* model;
+		Shader* shady;
+		glm::vec3 position;
+		glm::vec3 rotation;
+	public:
+		modelLoader(const char* path, glm::vec3 pos, glm::vec3 rot,Shader* shaderM) :
+			position(pos), rotation(rot) {
+			shady = shaderM;
+			model = new Model(path);
+		}
+		~modelLoader() {
+			delete model;
+			delete shady;
+		}
+		Shader* getShader() {
+			return shady;
+		}
+		void updateModelMatrix() {
+			glm::mat4 modelMatrix(1.f);
+			modelMatrix = glm::translate(modelMatrix, position);
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
+			modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
+			shady->setUniformMatrix4fv("modelMatrix", GL_FALSE, modelMatrix);
+		}
+		void Draw() {
+			model->Draw(shady);
 		}
 	};
 }

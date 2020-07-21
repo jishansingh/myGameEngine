@@ -19,6 +19,8 @@ namespace gameEngine {
 			this->addKeyEvent(GLFW_KEY_A);
 			this->addKeyEvent(GLFW_KEY_S);
 			this->addKeyEvent(GLFW_KEY_D);
+			this->addKeyEvent(GLFW_KEY_Z);
+			this->addKeyEvent(GLFW_KEY_X);
 		}
 		~Camera() {
 
@@ -44,16 +46,22 @@ namespace gameEngine {
 				camFront = camPos + frontVec;
 			}
 			else if (key == GLFW_KEY_S) {
-				camPos -= (frontVec)*0.01f;
+				camPos -= (frontVec) * 0.01f;
 				camFront = camPos + frontVec;
 			}
 			else if (key == GLFW_KEY_A) {
-				rotateCam(true);
-				std::cout << camPos.x << camPos.y << camPos.z << std::endl;
+				rotateCam(false);
 			}
 			else if (key == GLFW_KEY_D) {
-				rotateCam(false);
-				std::cout << camPos.x << camPos.y << camPos.z << std::endl;
+				rotateCam(true);
+			}
+			else if (key == GLFW_KEY_X) {
+				camPos -= (worldUp) * 0.01f;
+				camFront = camPos + frontVec;
+			}
+			else if (key == GLFW_KEY_Z) {
+				camPos += (worldUp) * 0.01f;
+				camFront = camPos + frontVec;
 			}
 			
 		}
