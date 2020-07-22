@@ -22,9 +22,8 @@ namespace gameEngine {
 		glm::vec3 rotation;
 		std::vector<Texture*> textures;
 	public:
-		Quad(glm::vec3 pos,glm::vec3 rot,float width, float height,Shader* QShad , std::vector<Texture*> tex,const float offset=0.01f) {
+		Quad(glm::vec3 pos,glm::vec3 rot,float width, float height,Shader* QShad ,const float offset=0.01f) {
 			shady = QShad;
-			textures = tex;
 			position = pos;
 			rotation = rot;
 			float farWid = 2 * (width - offset);

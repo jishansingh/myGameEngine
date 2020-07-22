@@ -7,15 +7,16 @@ namespace gameEngine {
 	class FUN_API framebufferObject {
 		unsigned int fbo;
 		unsigned int rbo;
-		std::vector<Texture*> textures;
 	public:
+		std::vector<Texture*> textures;
 		framebufferObject(int noOfColorAttachment,const bool depth = true) {
 			glGenFramebuffers(1, &fbo);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-			const unsigned int HEIGHT = 1024;
-			const unsigned int WIDTH = 1024;
+			const unsigned int HEIGHT = 800;
+			const unsigned int WIDTH = 800;
 			for (int i = 0; i < noOfColorAttachment; i++) {
-				Texture* temp = new Texture(GL_TEXTURE_2D, GL_RGB, GL_RGBA, GL_RGB16F, WIDTH, HEIGHT);
+				bind();
+				Texture* temp = new Texture(GL_TEXTURE_2D, GL_RGBA, GL_RGBA16F, GL_FLOAT, WIDTH, HEIGHT);
 				temp->bindToFrambuffer(i);
 				textures.push_back(temp);
 			}
@@ -48,6 +49,9 @@ namespace gameEngine {
 		}
 		void unBind() {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+		GLint getFBO() {
+			return fbo;
 		}
 	};
 }

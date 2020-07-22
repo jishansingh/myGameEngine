@@ -3,15 +3,19 @@
 #include"Events/EventManager.h"
 #include"Camera.h"
 #include"renderObj.h"
+#include"frameRenderObject.h"
 void framebuffer_resize_callback(GLFWwindow* window, int width, int height);
 namespace gameEngine{
 	class FUN_API GameWindow {
 	protected:
 		GLFWwindow* window;
 		EventManager* manager;
-		//Camera* winCam;
+		Quad* window2D;
+		Shader* finalShader;
 		Camera* winCam;
-		std::vector<ObjectRender*> renderObj;
+		//Camera* winCam;
+		std::vector<Texture*>finTex;
+		std::vector<frameRenderObject*> frameObj;
 	private:
 		int glMajorVer = 4;
 		int glMinorVer = 4;
@@ -50,15 +54,17 @@ namespace gameEngine{
 
 			//create Camera
 			manager = new EventManager();
-			glm::vec3 gop = glm::vec3(0.f, 0.f, 1.f);
-			winCam =new Camera(gop);
-			manager->addNewObj(winCam);
+
+			//this camera is just for quad
+			winCam = new Camera(glm::vec3(0.f, 0.f, 1.f));
 		}
 		virtual ~GameWindow() {
 			delete manager;
-			for (int i = 0; i < renderObj.size(); i++) {
-				delete renderObj[i];
+			for (int i = 0; i < frameObj.size(); i++) {
+				delete frameObj[i];
 			}
+			delete winCam;
+			delete window2D;
 			glfwTerminate();
 		}
 		virtual void updateProjMatrix(Shader*shady) {
@@ -70,8 +76,18 @@ namespace gameEngine{
 			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
 			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 		}
-		void addRenderObj(ObjectRender *iop) {
-			renderObj.push_back(iop);
+		inline void addFrameObj(frameRenderObject*iop) {
+			frameObj.push_back(iop);
+		}
+		inline void addToManager(GameObj* somObj) {
+			manager->addNewObj(somObj);
+		}
+		void addTex(Texture* po) {
+			finTex.push_back(po);
+		}
+		void setFinalShader(Shader* shad) {
+			this->finalShader = shad;
+			window2D = new Quad(glm::vec3(-0.5f, -0.5f, 0.f), glm::vec3(0.f), 0.5f, 0.5f, finalShader,0.f);
 		}
 		virtual void preRender(){}
 		virtual void postRender() {}
@@ -82,12 +98,34 @@ namespace gameEngine{
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 				manager->handleKeyboardInput(window);
 				manager->handleKeyboardEvents();
-				for (int i = 0; i < renderObj.size(); i++) {
-					updateProjMatrix(renderObj[i]->getShader());
-					winCam->sendToShader(renderObj[i]->getShader());
-					renderObj[i]->updateModelMatrix();
-					renderObj[i]->Draw();
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				for (int i = 0; i < frameObj.size(); i++) {
+					updateProjMatrix(frameObj[i]->renderObj[0]->getShader());
+					frameObj[i]->render();
+					
 				}
+				glBindFramebuffer(GL_READ_FRAMEBUFFER, frameObj[0]->getFBO());
+				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+				glBlitFramebuffer(0, 0, 1024, 1024, 0, 0, framebufferwidth, framebufferheight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+				
+				
+				/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glViewport(0, 0, framebufferwidth, framebufferheight);
+				glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+				glEnable(GL_DEPTH_TEST);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+				finalShader->Use();
+				for (int i = 0; i < finTex.size(); i++) {
+					finTex[i]->bind();
+					std::string top = "texture" + std::to_string(i);
+					finalShader->setUniform1i(top.c_str(), finTex[i]->getTextureUnit());
+				}
+				updateProjMatrix(finalShader);
+				winCam->sendToShader(finalShader);
+
+				window2D->updateModelMatrix();
+				finTex[0]->bind();
+				window2D->Draw();*/
 
 				preRender();
 				postRender();
@@ -96,9 +134,11 @@ namespace gameEngine{
 
 			}
 		}
-
+		GLFWwindow* getWindow() {
+			return window;
+		}
 	};
-	GameWindow* createEngine();
+	void createEngine(GameWindow* som);
 }
 void framebuffer_resize_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);

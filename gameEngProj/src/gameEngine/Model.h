@@ -13,7 +13,7 @@ namespace gameEngine {
 			for (int i = 0; i < mat->GetTextureCount(type); i++) {
 				aiString str;
 				mat->GetTexture(type, i, &str);
-				Texture* texture = new Texture(directory + "/" + std::string(str.C_Str()), GL_TEXTURE_2D, count + i);
+				Texture* texture = new Texture(directory + "/" + std::string(str.C_Str()), GL_TEXTURE_2D);
 				textures.push_back(texture);
 			}
 			count += mat->GetTextureCount(type);
