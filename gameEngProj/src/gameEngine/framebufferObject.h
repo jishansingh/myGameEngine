@@ -12,18 +12,20 @@ namespace gameEngine {
 		framebufferObject(int noOfColorAttachment,const bool depth = true) {
 			glGenFramebuffers(1, &fbo);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-			const unsigned int HEIGHT = 800;
-			const unsigned int WIDTH = 800;
+			const unsigned int HEIGHT = 1024;
+			const unsigned int WIDTH = 1024;
 			for (int i = 0; i < noOfColorAttachment; i++) {
 				bind();
-				Texture* temp = new Texture(GL_TEXTURE_2D, GL_RGBA, GL_RGBA16F, GL_FLOAT, WIDTH, HEIGHT);
+				Texture* temp = new Texture(GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_FLOAT, WIDTH, HEIGHT);
 				temp->bindToFrambuffer(i);
 				textures.push_back(temp);
+				temp->unbind();
 			}
 			std::vector<GLenum> drawAttach;
 			for (int i = 0; i < noOfColorAttachment; i++) {
 				drawAttach.push_back(GL_COLOR_ATTACHMENT0 + i);
 			}
+			//glDrawBuffer(GL_COLOR_ATTACHMENT0);
 			glDrawBuffers(drawAttach.size(), drawAttach.data());
 			rbo = -1;
 			if (depth) {
@@ -32,7 +34,8 @@ namespace gameEngine {
 				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
 				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 			}
-
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+				std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 
 		}
 		~framebufferObject() {
@@ -50,7 +53,7 @@ namespace gameEngine {
 		void unBind() {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
-		GLint getFBO() {
+		unsigned int getFBO() {
 			return fbo;
 		}
 	};

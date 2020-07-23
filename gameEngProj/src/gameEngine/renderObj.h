@@ -7,6 +7,7 @@ namespace gameEngine {
 	class FUN_API ObjectRender :public GameObj {
 	public:
 		virtual void updateModelMatrix() {}
+		virtual void updateProjMatrix(GLFWwindow* window) {}
 		virtual void Draw() {}
 		virtual Shader* getShader() { return NULL; }
 		virtual ~ObjectRender(){}
@@ -65,8 +66,21 @@ namespace gameEngine {
 			modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
 			shady->setUniformMatrix4fv("modelMatrix", GL_FALSE, modelMatrix);
 		}
+		void updateProjMatrix(GLFWwindow* window) {
+			int framebufferwidth;
+			int framebufferheight;
+			glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
+			glm::mat4 projMatrix(1.f);
+			float nearPlane = 0.1f;
+			float farPlane = 100.f;
+			float fov = 45.f;
+			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
+			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
+		}
+
 		void Draw() {
 			shady->Use();
+
 			for (int i = 0; i < textures.size();i++) {
 				textures[i]->bind();
 				std::string temp = "texture" + std::to_string(i);
@@ -116,6 +130,17 @@ namespace gameEngine {
 			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
 			modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
 			shady->setUniformMatrix4fv("modelMatrix", GL_FALSE, modelMatrix);
+		}
+		void updateProjMatrix(GLFWwindow* window) {
+			int framebufferwidth;
+			int framebufferheight;
+			glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
+			glm::mat4 projMatrix(1.f);
+			float nearPlane = 0.1f;
+			float farPlane = 100.f;
+			float fov = 45.f;
+			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
+			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 		}
 		void Draw() {
 			model->Draw(shady);

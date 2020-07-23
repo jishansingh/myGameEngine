@@ -13,6 +13,7 @@ namespace gameEngine{
 		Quad* window2D;
 		Shader* finalShader;
 		Camera* winCam;
+		Texture* testTex;
 		//Camera* winCam;
 		std::vector<Texture*>finTex;
 		std::vector<frameRenderObject*> frameObj;
@@ -57,6 +58,8 @@ namespace gameEngine{
 
 			//this camera is just for quad
 			winCam = new Camera(glm::vec3(0.f, 0.f, 1.f));
+
+			//manager->addNewObj(winCam);
 		}
 		virtual ~GameWindow() {
 			delete manager;
@@ -94,38 +97,39 @@ namespace gameEngine{
 		void render() {
 			while (!glfwWindowShouldClose(window)) {
 				glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-				glEnable(GL_DEPTH_TEST);
+				//glEnable(GL_DEPTH_TEST);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 				manager->handleKeyboardInput(window);
 				manager->handleKeyboardEvents();
-				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				for (int i = 0; i < frameObj.size(); i++) {
-					updateProjMatrix(frameObj[i]->renderObj[0]->getShader());
-					frameObj[i]->render();
-					
+					//updateProjMatrix(frameObj[i]->renderObj[0]->getShader());
+					frameObj[i]->render(window);
 				}
-				glBindFramebuffer(GL_READ_FRAMEBUFFER, frameObj[0]->getFBO());
-				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-				glBlitFramebuffer(0, 0, 1024, 1024, 0, 0, framebufferwidth, framebufferheight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-				
-				
-				/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+				glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
 				glViewport(0, 0, framebufferwidth, framebufferheight);
-				glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glBindVertexArray(0);
+				glBindTexture(GL_TEXTURE_2D, 0);
 				glEnable(GL_DEPTH_TEST);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-				finalShader->Use();
+				//finalShader->Use();
+				
+				//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 				for (int i = 0; i < finTex.size(); i++) {
 					finTex[i]->bind();
 					std::string top = "texture" + std::to_string(i);
 					finalShader->setUniform1i(top.c_str(), finTex[i]->getTextureUnit());
 				}
-				updateProjMatrix(finalShader);
+				finalShader->Use();
+				window2D->updateProjMatrix(window);
 				winCam->sendToShader(finalShader);
 
 				window2D->updateModelMatrix();
-				finTex[0]->bind();
-				window2D->Draw();*/
+				
+				window2D->Draw();
 
 				preRender();
 				postRender();
