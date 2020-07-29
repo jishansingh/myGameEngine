@@ -17,5 +17,6 @@ void main(){
 	/*if(material0.specularTex){
 		fs_color = texture(material0.specularTex,fs_texcoord);
 	}*/
+	gl_FragDepth = gl_FragCoord.z;
 	
 }

@@ -30,7 +30,12 @@ namespace gameEngine {
 			delete fbo;
 		}
 
-		
+		void setUniformInt(char* name, int som) {
+			for (int i = 0; i < renderObj.size(); i++) {
+				renderObj[i]->getShader()->Use();
+				renderObj[i]->getShader()->setUniform1i(name, som);
+			}
+		}
 
 		void render(GLFWwindow* window) {
 			fbo->bind();

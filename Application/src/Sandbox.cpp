@@ -30,6 +30,6 @@ void gameEngine::createEngine(GameWindow* som) {
 	som->addToManager(cam);
 	gameEngine::Shader* finShader = new gameEngine::Shader("finalVertexShader.glsl", "finalFragmentShader.glsl", "");
 	//gameEngine::Texture* tex = new gameEngine::Texture("container.png", GL_TEXTURE_2D);
-	som->addTex(fbo->textures[0]);
+	som->addTex(fbo->depthTex);
 	som->setFinalShader(finShader);
 }

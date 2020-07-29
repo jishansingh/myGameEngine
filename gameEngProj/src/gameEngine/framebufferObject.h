@@ -9,6 +9,7 @@ namespace gameEngine {
 		unsigned int rbo;
 	public:
 		std::vector<Texture*> textures;
+		Texture* depthTex;
 		framebufferObject(int noOfColorAttachment,const bool depth = true) {
 			glGenFramebuffers(1, &fbo);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -26,13 +27,21 @@ namespace gameEngine {
 				drawAttach.push_back(GL_COLOR_ATTACHMENT0 + i);
 			}
 			//glDrawBuffer(GL_COLOR_ATTACHMENT0);
+			
 			glDrawBuffers(drawAttach.size(), drawAttach.data());
 			rbo = -1;
-			if (depth) {
+			depthTex = NULL;
+			if (!depth) {
 				glGenRenderbuffers(1, &rbo);
 				glBindRenderbuffer(GL_RENDERBUFFER, rbo);
 				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
 				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+			}
+			else {
+				bind();
+				depthTex = new Texture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, WIDTH, HEIGHT);
+				depthTex->bindAsDepthBuffer();
+				//depthTex->unbind();
 			}
 			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 				std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
@@ -44,6 +53,9 @@ namespace gameEngine {
 			}
 			if (rbo != -1) {
 				glDeleteRenderbuffers(1, &rbo);
+			}
+			else {
+				delete depthTex;
 			}
 			glDeleteFramebuffers(1, &fbo);
 		}
