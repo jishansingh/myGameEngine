@@ -12,11 +12,12 @@ struct Material{
 uniform Material material0;
 void main(){
 	
-	fs_color = texture(material0.diffuseTex,fs_texcoord);
+	//fs_color = texture(material0.diffuseTex,fs_texcoord);
 	//fs_color += texture(material0.specularTex,fs_texcoord)*0.6;
 	/*if(material0.specularTex){
 		fs_color = texture(material0.specularTex,fs_texcoord);
 	}*/
+	fs_color = vec4(1.f,0.f,0.f,1.f);
 	gl_FragDepth = gl_FragCoord.z;
 	
 }

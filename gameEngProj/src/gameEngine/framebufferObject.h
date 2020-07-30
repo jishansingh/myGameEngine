@@ -4,12 +4,12 @@
 #include"Texture.h"
 
 namespace gameEngine {
-	class FUN_API framebufferObject {
+	class FUN_API framebufferObject :public sharedObj {
 		unsigned int fbo;
 		unsigned int rbo;
 	public:
-		std::vector<Texture*> textures;
-		Texture* depthTex;
+		std::vector<std::shared_ptr <Texture>> textures;
+		std::shared_ptr <Texture> depthTex;
 		framebufferObject(int noOfColorAttachment,const bool depth = true) {
 			glGenFramebuffers(1, &fbo);
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -19,7 +19,7 @@ namespace gameEngine {
 				bind();
 				Texture* temp = new Texture(GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_FLOAT, WIDTH, HEIGHT);
 				temp->bindToFrambuffer(i);
-				textures.push_back(temp);
+				textures.push_back(std::make_shared<Texture>(*temp));
 				temp->unbind();
 			}
 			std::vector<GLenum> drawAttach;
@@ -39,7 +39,8 @@ namespace gameEngine {
 			}
 			else {
 				bind();
-				depthTex = new Texture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, WIDTH, HEIGHT);
+				Texture* tempTex = new Texture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, WIDTH, HEIGHT);
+				depthTex = std::make_shared<Texture>(*tempTex);
 				depthTex->bindAsDepthBuffer();
 				//depthTex->unbind();
 			}
@@ -48,14 +49,8 @@ namespace gameEngine {
 
 		}
 		~framebufferObject() {
-			for (int i = 0; i < textures.size(); i++) {
-				delete textures[i];
-			}
 			if (rbo != -1) {
 				glDeleteRenderbuffers(1, &rbo);
-			}
-			else {
-				delete depthTex;
 			}
 			glDeleteFramebuffers(1, &fbo);
 		}

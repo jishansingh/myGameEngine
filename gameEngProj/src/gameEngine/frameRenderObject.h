@@ -8,26 +8,21 @@
 #include"renderObj.h"
 
 namespace gameEngine {
-	class FUN_API frameRenderObject {
-		framebufferObject* fbo;
-		Camera* winCam;
+	class FUN_API frameRenderObject :public sharedObj {
+		std::shared_ptr<framebufferObject> fbo;
+		std::shared_ptr <Camera> winCam;
 	public:
-		std::vector<ObjectRender*> renderObj;
-		frameRenderObject(framebufferObject* fObj, Camera* cam) {
+		std::vector< std::shared_ptr <ObjectRender>> renderObj;
+		frameRenderObject(std::shared_ptr<framebufferObject> fObj, std::shared_ptr <Camera> cam) {
 			fbo = fObj;
 			winCam = cam;
 		}
 
-		inline void addRenderObj(ObjectRender* somObj) {
+		inline void addRenderObj(std::shared_ptr <ObjectRender> somObj) {
 			renderObj.push_back(somObj);
 		}
 
-		~frameRenderObject() {
-			delete winCam;
-			for (int i = 0; i < renderObj.size(); i++) {
-				delete renderObj[i];
-			}
-			delete fbo;
+		virtual ~frameRenderObject() {
 		}
 
 		void setUniformInt(char* name, int som) {
@@ -37,6 +32,8 @@ namespace gameEngine {
 			}
 		}
 
+		virtual void setUniform(std::shared_ptr <Shader> shady) {}
+		virtual void preRender() {}
 		void render(GLFWwindow* window) {
 			fbo->bind();
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -50,12 +47,15 @@ namespace gameEngine {
 				renderObj[i]->updateModelMatrix();
 				winCam->sendToShader(renderObj[i]->getShader());
 				renderObj[i]->updateProjMatrix(window);
+				setUniform(renderObj[i]->getShader());
 				renderObj[i]->Draw();
 			}
 			fbo->unBind();
+
+
 		}
-		unsigned int getFBO() {
-			return fbo->getFBO();
+		std::shared_ptr <framebufferObject> getFBO() {
+			return fbo;
 		}
 	};
 }

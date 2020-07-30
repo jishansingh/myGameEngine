@@ -4,11 +4,11 @@
 
 namespace gameEngine {
 	class FUN_API EventManager {
-		std::vector<GameObj*> eventObj;
+		std::vector< std::shared_ptr <GameObj>> eventObj;
 		std::queue<int>eventQ;
 	public:
 		EventManager() {
-			eventObj = std::vector<GameObj*>();
+			eventObj = std::vector< std::shared_ptr <GameObj>>();
 			eventQ = std::queue<int>();
 		}
 		void handleKeyboardInput(GLFWwindow* window) {
@@ -28,7 +28,7 @@ namespace gameEngine {
 				}
 			}
 		}
-		void addNewObj(GameObj* som) {
+		void addNewObj(std::shared_ptr <GameObj> som) {
 			eventObj.push_back(som);
 		}
 	};

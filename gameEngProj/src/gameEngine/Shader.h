@@ -1,8 +1,10 @@
 #pragma once
 
 #include"libs.h"
+#include"sharedObj.h"
+
 namespace gameEngine {
-	class FUN_API Shader {
+	class FUN_API Shader :public sharedObj {
 	private:
 		GLuint prog_id;
 		//private functions

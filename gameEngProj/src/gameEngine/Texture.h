@@ -2,7 +2,7 @@
 #include"Core.h"
 #include"libs.h"
 namespace gameEngine {
-	class FUN_API Texture {
+	class FUN_API Texture :public sharedObj {
 	private:
 		static GLint totalTexUnit;
 		GLuint texture_id;
@@ -61,7 +61,7 @@ namespace gameEngine {
 		}
 		~Texture() {
 			glDeleteTextures(1, &this->texture_id);
-			totalTexUnit--;
+				
 		}
 		void unbind() {
 			glActiveTexture(0);

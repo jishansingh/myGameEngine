@@ -4,12 +4,12 @@
 #include"Shader.h"
 
 namespace gameEngine {
-	class FUN_API Mesh {
-	private:
+	class FUN_API Mesh :public sharedObj{
+	private: 
 		std::vector<Vertex>vertices;
-
-
-		std::vector<Texture*>specularTex;
+		std::vector<unsigned int>indices;
+		std::vector<std::shared_ptr <Texture>>diffuseTex;
+		std::vector< std::shared_ptr <Texture>>specularTex;
 		unsigned int vbo;
 		unsigned int ibo;
 		unsigned int vao;
@@ -40,31 +40,29 @@ namespace gameEngine {
 		}
 
 	public:
-		std::vector<Texture*>diffuseTex;
-		std::vector<unsigned int>indices;
 		Mesh(std::vector<Vertex>& vert, std::vector<unsigned int>& index_arr, std::vector<Texture*> diffuse_tex_mat, std::vector<Texture*> specular_tex_mat) {
-
 			this->vertices = vert;
 			this->indices = index_arr;
-			this->diffuseTex = diffuse_tex_mat;
+			//this->diffuseTex = diffuse_tex_mat;
 			//this->diffuseTex.insert(this->diffuseTex.end(), diffuse_tex_mat.begin(), diffuse_tex_mat.end());
-			this->specularTex = specular_tex_mat;
+			//this->specularTex = specular_tex_mat;
 			/*for (int i = 0; i < vert.size(); i++) {
 				vertices.push_back(vert[i]);
 			}
 			for (int i = 0; i < index_arr.size(); i++) {
 				indices.push_back(index_arr[i]);
 			}
+			*/
 			for (int i = 0; i < diffuse_tex_mat.size(); i++) {
-				diffuseTex.push_back(&diffuse_tex_mat[i]);
+				diffuseTex.push_back(std::make_shared<Texture>(*diffuse_tex_mat[i]));
 			}
 			for (int i = 0; i < specular_tex_mat.size(); i++) {
-				specularTex.push_back(&specular_tex_mat[i]);
-			}*/
+				specularTex.push_back(std::make_shared<Texture>(*specular_tex_mat[i]));
+			}
 
 			initBuffers();
 		}
-		void Draw(Shader* shader) {
+		void Draw(std::shared_ptr <Shader>& shader) {
 			shader->Use();
 
 			glBindVertexArray(vao);
@@ -119,6 +117,12 @@ namespace gameEngine {
 
 		}
 		inline unsigned int getVAO() { return vao; }
+
+		~Mesh() {
+			glDeleteVertexArrays(1, &vao);
+			glDeleteBuffers(1, &vbo);
+			glDeleteBuffers(1, &ibo);
+		}
 
 	};
 }

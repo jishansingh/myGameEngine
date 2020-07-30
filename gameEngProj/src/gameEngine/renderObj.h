@@ -9,21 +9,21 @@ namespace gameEngine {
 		virtual void updateModelMatrix() {}
 		virtual void updateProjMatrix(GLFWwindow* window) {}
 		virtual void Draw() {}
-		virtual Shader* getShader() { return NULL; }
+		virtual std::shared_ptr <Shader> getShader() { return NULL; }
 		virtual ~ObjectRender(){}
 	};
 
 
 	class FUN_API Quad :public ObjectRender {
-		Shader* shady;
+		std::shared_ptr <Shader> shady;
 		unsigned int vao;
 		unsigned int vbo;
 		unsigned int ibo;
 		glm::vec3 position;
 		glm::vec3 rotation;
-		std::vector<Texture*> textures;
+		std::vector<std::shared_ptr<Texture>> textures;
 	public:
-		Quad(glm::vec3 pos,glm::vec3 rot,float width, float height,Shader* QShad ,const float offset=0.01f) {
+		Quad(glm::vec3 pos,glm::vec3 rot,float width, float height, std::shared_ptr<Shader> QShad ,const float offset=0.01f) {
 			shady = QShad;
 			position = pos;
 			rotation = rot;
@@ -54,8 +54,21 @@ namespace gameEngine {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), indVert, GL_STATIC_DRAW);
 		}
-		void addTexture(Texture* tex) {
+		~Quad() {
+			glDeleteBuffers(1, &vbo);
+			glDeleteBuffers(1, &ibo);
+			glDeleteVertexArrays(1, &vao);
+		}
+		void addTexture(std::shared_ptr <Texture> tex) {
 			textures.push_back(tex);
+		}
+		void replaceTex(int i, std::shared_ptr <Texture> tex) {
+			if (i >= textures.size()) {
+				return;
+			}
+			//how to lose shared_ptr
+			//delete textures[i];
+			textures[i] = tex;
 		}
 		void updateModelMatrix() {
 			glm::mat4 modelMatrix(1.f);
@@ -90,36 +103,26 @@ namespace gameEngine {
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		}
 		void onkeyPress(int key){}
-		Shader* getShader() {
+		std::shared_ptr<Shader> getShader() {
 			return shady;
 		}
-		~Quad() {
-			for (int i = 0; i < textures.size(); i++) {
-				delete textures[i];
-			}
-			delete shady;
-			glDeleteBuffers(1, &vbo);
-			glDeleteBuffers(1, &ibo);
-			glDeleteVertexArrays(1, &vao);
-		}
+		
 	};
 
 	class FUN_API modelLoader :public ObjectRender {
-		Model* model;
-		Shader* shady;
+		std::shared_ptr <Model> model;
+		std::shared_ptr <Shader> shady;
 		glm::vec3 position;
 		glm::vec3 rotation;
 	public:
-		modelLoader(const char* path, glm::vec3 pos, glm::vec3 rot,Shader* shaderM) :
+		modelLoader(const char* path, glm::vec3 pos, glm::vec3 rot, std::shared_ptr <Shader> shaderM) :
 			position(pos), rotation(rot) {
 			shady = shaderM;
-			model = new Model(path);
+			model = std::make_shared<Model>(*new Model(path));
 		}
 		~modelLoader() {
-			delete model;
-			delete shady;
 		}
-		Shader* getShader() {
+		std::shared_ptr <Shader> getShader() {
 			return shady;
 		}
 		void updateModelMatrix() {

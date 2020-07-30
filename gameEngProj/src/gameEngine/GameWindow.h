@@ -4,6 +4,7 @@
 #include"Camera.h"
 #include"renderObj.h"
 #include"frameRenderObject.h"
+#include"Effects/Blur.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -15,13 +16,13 @@ namespace gameEngine{
 	protected:
 		GLFWwindow* window;
 		EventManager* manager;
-		Quad* window2D;
-		Shader* finalShader;
-		Camera* winCam;
-		Texture* testTex;
+		std::shared_ptr <Quad> window2D;
+		std::shared_ptr <Shader> finalShader;
+		std::shared_ptr <Camera> winCam;
 		//Camera* winCam;
-		std::vector<Texture*>finTex;
-		std::vector<frameRenderObject*> frameObj;
+		std::vector< std::shared_ptr <Texture>>finTex;
+		std::vector< std::shared_ptr <frameRenderObject>> frameObj;
+		Blur* somEff;
 	private:
 		int glMajorVer = 4;
 		int glMinorVer = 4;
@@ -70,17 +71,16 @@ namespace gameEngine{
 			manager = new EventManager();
 
 			//this camera is just for quad
-			winCam = new Camera(glm::vec3(0.f, 0.f, 1.f));
+			Camera* tempCam = new Camera(glm::vec3(0.f, 0.f, 1.f));
+			winCam = std::make_shared<Camera>(*tempCam);
 			//ImGui::StyleColorsDark();
 			//manager->addNewObj(winCam);
+
+			somEff = new Blur();
+
 		}
 		virtual ~GameWindow() {
 			delete manager;
-			for (int i = 0; i < frameObj.size(); i++) {
-				delete frameObj[i];
-			}
-			delete winCam;
-			delete window2D;
 			glfwTerminate();
 		}
 		virtual void updateProjMatrix(Shader*shady) {
@@ -92,18 +92,19 @@ namespace gameEngine{
 			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
 			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 		}
-		inline void addFrameObj(frameRenderObject*iop) {
+		inline void addFrameObj(std::shared_ptr <frameRenderObject> iop) {
 			frameObj.push_back(iop);
 		}
-		inline void addToManager(GameObj* somObj) {
+		inline void addToManager(std::shared_ptr <GameObj> somObj) {
 			manager->addNewObj(somObj);
 		}
-		void addTex(Texture* po) {
+		void addTex(std::shared_ptr <Texture> po) {
 			finTex.push_back(po);
 		}
-		void setFinalShader(Shader* shad) {
+		void setFinalShader(std::shared_ptr <Shader> shad) {
 			this->finalShader = shad;
-			window2D = new Quad(glm::vec3(-0.5f, -0.5f, 0.f), glm::vec3(0.f), 0.5f, 0.5f, finalShader,0.f);
+			Quad* tempQuad = new Quad(glm::vec3(-0.5f, -0.5f, 0.f), glm::vec3(0.f), 0.5f, 0.5f, finalShader, 0.f);
+			window2D = std::make_shared<Quad>(*tempQuad);
 		}
 		virtual void preRender(){}
 		virtual void postRender() {}
@@ -157,9 +158,11 @@ namespace gameEngine{
 				manager->handleKeyboardInput(window);
 				manager->handleKeyboardEvents();
 				//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				std::shared_ptr<Texture> sol;
 				for (int i = 0; i < frameObj.size(); i++) {
 					//updateProjMatrix(frameObj[i]->renderObj[0]->getShader());
 					frameObj[i]->render(window);
+					sol = somEff->render(window,frameObj[i]->getFBO()->textures[0]);
 				}
 
 				glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
@@ -175,9 +178,9 @@ namespace gameEngine{
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 				finalShader->Use();
 				for (int i = 0; i < finTex.size(); i++) {
-					finTex[i]->bind();
+					sol->bind();
 					std::string top = "texture" + std::to_string(i);
-					finalShader->setUniform1i(top.c_str(), finTex[i]->getTextureUnit());
+					finalShader->setUniform1i(top.c_str(), sol->getTextureUnit());
 				}
 				window2D->updateProjMatrix(window);
 				winCam->sendToShader(finalShader);

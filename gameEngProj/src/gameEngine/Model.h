@@ -2,7 +2,7 @@
 #include"libs.h"
 #include"Mesh.h"
 namespace gameEngine {
-	class FUN_API Model {
+	class FUN_API Model :public sharedObj{
 	private:
 		std::string directory;
 
@@ -21,7 +21,7 @@ namespace gameEngine {
 			return textures;
 		}
 
-		Mesh processMesh(aiMesh* mesh, const aiScene* scene) {
+		Mesh* processMesh(aiMesh* mesh, const aiScene* scene) {
 			std::vector<Vertex>vertices;
 			std::vector<GLuint>indexArr;
 			std::vector<Texture*>diffTex;
@@ -66,7 +66,7 @@ namespace gameEngine {
 				specTex = loadMaterialTexture(material, aiTextureType_SPECULAR, count);
 			}
 
-			Mesh mes(vertices, indexArr, diffTex, specTex);
+			Mesh* mes = new Mesh(vertices, indexArr, diffTex, specTex);
 			return mes;
 
 		}
@@ -75,7 +75,8 @@ namespace gameEngine {
 		void processNode(aiNode* node, const aiScene* scene) {
 			for (int i = 0; i < node->mNumMeshes; i++) {
 				aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-				meshes.push_back(processMesh(mesh, scene));
+				Mesh* tempMesh = processMesh(mesh, scene);
+				meshes.push_back(std::make_shared<Mesh>(*tempMesh));
 			}
 			for (int i = 0; i < node->mNumChildren; i++) {
 				processNode(node->mChildren[i], scene);
@@ -96,17 +97,17 @@ namespace gameEngine {
 
 		}
 	public:
-		std::vector<Mesh>meshes;
+		std::vector<std::shared_ptr<Mesh>>meshes;
 		Model(const char* path) {
 			loadModel(path);
 		}
-		void Draw(Shader* shader) {
+		void Draw(std::shared_ptr <Shader> shader) {
 			for (int i = 0; i < meshes.size(); i++) {
-				meshes[i].Draw(shader);
+				meshes[i]->Draw(shader);
 			}
 		}
-		std::vector<Texture*> getTexture(int i) {
-			return meshes[i].diffuseTex;
+		~Model() {
+			
 		}
 
 	};

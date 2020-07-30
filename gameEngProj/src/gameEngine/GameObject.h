@@ -1,7 +1,8 @@
 #pragma once
 #include"libs.h"
+#include"sharedObj.h"
 namespace gameEngine {
-	class FUN_API GameObj {
+	class FUN_API GameObj :public sharedObj {
 	protected:
 		enum {
 			KEY_A=0,

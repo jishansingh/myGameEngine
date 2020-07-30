@@ -23,7 +23,6 @@ namespace gameEngine {
 			this->addKeyEvent(GLFW_KEY_X);
 		}
 		~Camera() {
-
 		}
 		void updateViewMatrix() {
 			viewMatrix = glm::mat4(1.f);
@@ -66,7 +65,7 @@ namespace gameEngine {
 			
 		}
 
-		void sendToShader(Shader* shady) {
+		void sendToShader(std::shared_ptr <Shader> shady) {
 			updateViewMatrix();
 			shady->setUniformMatrix4fv("viewMatrix", GL_FALSE, viewMatrix);
 		}
