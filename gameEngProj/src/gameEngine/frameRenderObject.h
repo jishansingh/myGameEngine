@@ -6,12 +6,16 @@
 #include"Events/EventManager.h"
 #include"Camera.h"
 #include"renderObj.h"
-
+#include"Effects/postProcessingEff.h"
 namespace gameEngine {
+	class FUN_API EffectObj;
 	class FUN_API frameRenderObject :public sharedObj {
 		std::shared_ptr<framebufferObject> fbo;
 		std::shared_ptr <Camera> winCam;
+	protected:
+		std::unordered_map<std::string,std::shared_ptr <EffectObj> > postEff;
 	public:
+		std::vector<std::shared_ptr<Texture>> result;
 		std::vector< std::shared_ptr <ObjectRender>> renderObj;
 		frameRenderObject(std::shared_ptr<framebufferObject> fObj, std::shared_ptr <Camera> cam) {
 			fbo = fObj;
@@ -23,6 +27,7 @@ namespace gameEngine {
 		}
 
 		virtual ~frameRenderObject() {
+			std::cout << "yes";
 		}
 
 		void setUniformInt(char* name, int som) {
@@ -32,8 +37,19 @@ namespace gameEngine {
 			}
 		}
 
+		void initializeAttachments(int noOfAttach) {
+			for (int i = 0; i < noOfAttach; i++) {
+				result.push_back(std::make_shared<gameEngine::Texture>(*new gameEngine::Texture(GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_FLOAT, 1024, 1024)));
+			}
+		}
+
 		virtual void setUniform(std::shared_ptr <Shader> shady) {}
 		virtual void preRender() {}
+		void addEffect(std::string temp,std::shared_ptr<EffectObj> somObj) {
+			postEff[temp] = somObj;
+		}
+
+		virtual void effectApply(GLFWwindow* window){}
 		void render(GLFWwindow* window) {
 			fbo->bind();
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -52,6 +68,7 @@ namespace gameEngine {
 			}
 			fbo->unBind();
 
+			effectApply(window);
 
 		}
 		std::shared_ptr <framebufferObject> getFBO() {

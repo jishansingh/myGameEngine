@@ -63,8 +63,11 @@ namespace gameEngine {
 			textures.push_back(tex);
 		}
 		void replaceTex(int i, std::shared_ptr <Texture> tex) {
-			if (i >= textures.size()) {
+			if (i > textures.size()) {
 				return;
+			}
+			else if (i == textures.size()) {
+				textures.push_back(tex);
 			}
 			//how to lose shared_ptr
 			//delete textures[i];

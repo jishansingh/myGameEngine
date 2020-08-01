@@ -4,7 +4,6 @@
 #include"Camera.h"
 #include"renderObj.h"
 #include"frameRenderObject.h"
-#include"Effects/Blur.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -22,7 +21,6 @@ namespace gameEngine{
 		//Camera* winCam;
 		std::vector< std::shared_ptr <Texture>>finTex;
 		std::vector< std::shared_ptr <frameRenderObject>> frameObj;
-		Blur* somEff;
 	private:
 		int glMajorVer = 4;
 		int glMinorVer = 4;
@@ -76,7 +74,6 @@ namespace gameEngine{
 			//ImGui::StyleColorsDark();
 			//manager->addNewObj(winCam);
 
-			somEff = new Blur();
 
 		}
 		virtual ~GameWindow() {
@@ -162,7 +159,6 @@ namespace gameEngine{
 				for (int i = 0; i < frameObj.size(); i++) {
 					//updateProjMatrix(frameObj[i]->renderObj[0]->getShader());
 					frameObj[i]->render(window);
-					sol = somEff->render(window,frameObj[i]->getFBO()->textures[0]);
 				}
 
 				glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
@@ -178,9 +174,9 @@ namespace gameEngine{
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 				finalShader->Use();
 				for (int i = 0; i < finTex.size(); i++) {
-					sol->bind();
+					finTex[i]->bind();
 					std::string top = "texture" + std::to_string(i);
-					finalShader->setUniform1i(top.c_str(), sol->getTextureUnit());
+					finalShader->setUniform1i(top.c_str(), finTex[i]->getTextureUnit());
 				}
 				window2D->updateProjMatrix(window);
 				winCam->sendToShader(finalShader);
