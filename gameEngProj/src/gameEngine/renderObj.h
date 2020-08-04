@@ -8,9 +8,15 @@ namespace gameEngine {
 	public:
 		virtual void updateModelMatrix() {}
 		virtual void updateProjMatrix(GLFWwindow* window) {}
-		virtual void Draw() {}
+		virtual void Draw(const bool instanced=false, const int count = 1) {}
 		virtual std::shared_ptr <Shader> getShader() { return NULL; }
 		virtual ~ObjectRender(){}
+		inline glm::vec3 getPosition() {
+			return glm::vec3(0.f);
+		}
+		inline glm::vec3 getRotation() {
+			return glm::vec3(0.f);
+		}
 	};
 
 
@@ -59,6 +65,12 @@ namespace gameEngine {
 			glDeleteBuffers(1, &ibo);
 			glDeleteVertexArrays(1, &vao);
 		}
+		inline glm::vec3 getPosition() {
+			return position;
+		}
+		inline glm::vec3 getRotation() {
+			return rotation;
+		}
 		void addTexture(std::shared_ptr <Texture> tex) {
 			textures.push_back(tex);
 		}
@@ -94,7 +106,7 @@ namespace gameEngine {
 			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 		}
 
-		void Draw() {
+		void Draw(const bool instanced = false, const int count = 1) {
 			shady->Use();
 
 			for (int i = 0; i < textures.size();i++) {
@@ -128,6 +140,12 @@ namespace gameEngine {
 		std::shared_ptr <Shader> getShader() {
 			return shady;
 		}
+		inline glm::vec3 getPosition() {
+			return position;
+		}
+		inline glm::vec3 getRotation() {
+			return rotation;
+		}
 		void updateModelMatrix() {
 			glm::mat4 modelMatrix(1.f);
 			modelMatrix = glm::translate(modelMatrix, position);
@@ -148,8 +166,65 @@ namespace gameEngine {
 			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
 			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 		}
-		void Draw() {
-			model->Draw(shady);
+		void Draw(const bool instanced = false, const int count = 1) {
+			model->Draw(shady, false, 0);
 		}
 	};
+
+	class instancedRenderer :public ObjectRender {
+		std::shared_ptr<ObjectRender> instancedObj;
+		std::vector<glm::vec3> positions;
+		std::vector<glm::vec3> color;
+		instancedRenderer(std::shared_ptr<ObjectRender> orgObj) {
+			instancedObj = orgObj;
+		}
+		void updateModelMatrix() {
+			glm::mat4 modelMatrix(1.f);
+			modelMatrix = glm::translate(modelMatrix, getPosition());
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(getRotation().x), glm::vec3(1.f, 0.f, 0.f));
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(getRotation().y), glm::vec3(0.f, 1.f, 0.f));
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(getRotation().z), glm::vec3(0.f, 0.f, 1.f));
+			modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
+			this->getShader()->setUniformMatrix4fv("modelMatrix", GL_FALSE, modelMatrix);
+		}
+		void updateProjMatrix(GLFWwindow* window) {
+			int framebufferwidth;
+			int framebufferheight;
+			glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
+			glm::mat4 projMatrix(1.f);
+			float nearPlane = 0.1f;
+			float farPlane = 100.f;
+			float fov = 45.f;
+			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
+			this->getShader()->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
+		}
+		void Draw(const bool instanced = false, const int count = 1) {
+			instancedObj->Draw(instanced,count);
+		}
+		std::shared_ptr <Shader> getShader() { return instancedObj->getShader(); }
+
+		inline glm::vec3 getPosition() {
+			return instancedObj->getPosition();
+		}
+		inline glm::vec3 getRotation() {
+			return instancedObj->getRotation();
+		}
+		void addInstance(glm::vec3& pos, glm::vec3& col) {
+			positions.push_back(pos);
+			color.push_back(col);
+		}
+
+		void sendToShader() {
+			for (int i = 0; i < positions.size(); i++) {
+				glm::mat4 modelMatrix(1.f);
+				modelMatrix = glm::translate(modelMatrix, positions[i]);
+				modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
+				std::string temp = "offsets[" + std::to_string(i) + "]";
+				this->getShader()->setUniformMatrix4fv(temp.c_str(), GL_FALSE, modelMatrix);
+				temp = "colors[" + std::to_string(i) + "]";
+				this->getShader()->setUniform3f(temp.c_str(), GL_FALSE, color[i]);
+			}
+		}
+	};
+
 }

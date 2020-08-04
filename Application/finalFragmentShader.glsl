@@ -9,5 +9,6 @@ void main(){
 	fs_color=vec4(1.f,0.f,0.f,1.f);
 	//float dep = texture(texture0,vs_texcoord).r;
 	//fs_color = vec4(vec3(dep),1.f);
-	fs_color = texture(texture0,vs_texcoord);
+	//fs_color = texture(texture0,vs_texcoord);
+	gl_FragDepth = 100.f;
 }

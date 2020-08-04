@@ -101,9 +101,9 @@ namespace gameEngine {
 		Model(const char* path) {
 			loadModel(path);
 		}
-		void Draw(std::shared_ptr <Shader> shader) {
+		void Draw(std::shared_ptr <Shader> shader,const bool instanced = false, const int count = 1) {
 			for (int i = 0; i < meshes.size(); i++) {
-				meshes[i]->Draw(shader);
+				meshes[i]->Draw(shader, instanced, count);
 			}
 		}
 		~Model() {

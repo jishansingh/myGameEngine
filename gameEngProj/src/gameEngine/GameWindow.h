@@ -5,11 +5,12 @@
 #include"renderObj.h"
 #include"frameRenderObject.h"
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include"Layer.h"
+
+
 
 void framebuffer_resize_callback(GLFWwindow* window, int width, int height);
+
 namespace gameEngine{
 	class FUN_API GameWindow {
 	protected:
@@ -21,6 +22,7 @@ namespace gameEngine{
 		//Camera* winCam;
 		std::vector< std::shared_ptr <Texture>>finTex;
 		std::vector< std::shared_ptr <frameRenderObject>> frameObj;
+		Layer* somLay;
 	private:
 		int glMajorVer = 4;
 		int glMinorVer = 4;
@@ -57,26 +59,55 @@ namespace gameEngine{
 				glfwTerminate();
 			}
 
-			/*IMGUI_CHECKVERSION();
-			ImGui::CreateContext();
-			ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-			ImGui::StyleColorsDark();
-			ImGui_ImplGlfw_InitForOpenGL(window, true);
-			ImGui_ImplOpenGL3_Init("version 440");*/
-
 			//create Camera
 			manager = new EventManager();
 
 			//this camera is just for quad
 			Camera* tempCam = new Camera(glm::vec3(0.f, 0.f, 1.f));
 			winCam = std::make_shared<Camera>(*tempCam);
+			manager->addNewObj(winCam);
+			somLay = new Layer(window);
+
+			/*IMGUI_CHECKVERSION();
+			ImGui::CreateContext();
+			ImGuiIO& io = ImGui::GetIO(); (void)io;*/
+
+			//io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;         // We can honor GetMouseCursor() values (optional)
+			//io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
+
+			//io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
+			//io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
+			//io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
+			//io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
+			//io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
+			//io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
+			//io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
+			//io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
+			//io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
+			//io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
+			//io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
+			//io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
+			//io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
+			//io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
+			//io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
+			//io.KeyMap[ImGuiKey_KeyPadEnter] = GLFW_KEY_KP_ENTER;
+			//io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
+			//io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
+			//io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
+			//io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
+			//io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
+			//io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+
 			//ImGui::StyleColorsDark();
 			//manager->addNewObj(winCam);
 
+			//ImGui_ImplGlfw_InitForOpenGL(window, true);
+			//ImGui_ImplOpenGL3_Init("#version 440");
+			somLay->onAttach();
 
 		}
 		virtual ~GameWindow() {
+			delete somLay;
 			delete manager;
 			glfwTerminate();
 		}
@@ -106,60 +137,24 @@ namespace gameEngine{
 		virtual void preRender(){}
 		virtual void postRender() {}
 		void render() {
-			bool show_demo_window = true;
+			/*bool show_demo_window = true;
 			bool show_another_window = false;
-			ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+			ImVec4 clear_color = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
+			float m_time = glfwGetTime();*/
 			while (!glfwWindowShouldClose(window)) {
 				//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 				//glEnable(GL_DEPTH_TEST);
 				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-				//ImGui_ImplOpenGL3_NewFrame();
-				//ImGui_ImplGlfw_NewFrame();
-				//ImGui::NewFrame();
+				
 
-				//if (show_demo_window)
-				//	ImGui::ShowDemoWindow(&show_demo_window);
-
-				//// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-				//{
-				//	static float f = 0.0f;
-				//	static int counter = 0;
-
-				//	ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-				//	ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-				//	ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-				//	ImGui::Checkbox("Another Window", &show_another_window);
-
-				//	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-				//	ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-				//	if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				//		counter++;
-				//	ImGui::SameLine();
-				//	ImGui::Text("counter = %d", counter);
-
-				//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-				//	ImGui::End();
+				//manager->handleKeyboardInput(window);
+				//manager->handleKeyboardEvents();
+				////glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				//std::shared_ptr<Texture> sol;
+				//for (int i = 0; i < frameObj.size(); i++) {
+				//	//updateProjMatrix(frameObj[i]->renderObj[0]->getShader());
+				//	frameObj[i]->render(window);
 				//}
-				//// 3. Show another simple window.
-				//if (show_another_window)
-				//{
-				//	ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-				//	ImGui::Text("Hello from another window!");
-				//	if (ImGui::Button("Close Me"))
-				//		show_another_window = false;
-				//	ImGui::End();
-				//}
-
-				manager->handleKeyboardInput(window);
-				manager->handleKeyboardEvents();
-				//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				std::shared_ptr<Texture> sol;
-				for (int i = 0; i < frameObj.size(); i++) {
-					//updateProjMatrix(frameObj[i]->renderObj[0]->getShader());
-					frameObj[i]->render(window);
-				}
 
 				glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
 				glViewport(0, 0, framebufferwidth, framebufferheight);
@@ -167,11 +162,14 @@ namespace gameEngine{
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				glBindVertexArray(0);
 				glBindTexture(GL_TEXTURE_2D, 0);
-				glEnable(GL_DEPTH_TEST);
-				//finalShader->Use();
+
 				
-				glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+				//glClear(GL_COLOR_BUFFER_BIT);
+
+				/*glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);*/
+				
+
 				finalShader->Use();
 				for (int i = 0; i < finTex.size(); i++) {
 					finTex[i]->bind();
@@ -182,18 +180,32 @@ namespace gameEngine{
 				winCam->sendToShader(finalShader);
 
 				window2D->updateModelMatrix();
+
+				//window2D->Draw();
+				finalShader->unUse();
+
+
+				// Rendering
+
 				
-				window2D->Draw();
+				somLay->onUpdate();
+				
+				//finalShader->Use();
+				
 
-
-				//ImGui::Render();
 
 				preRender();
 				postRender();
 				glfwSwapBuffers(window);
 				glfwPollEvents();
+				glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT);
+				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			}
+			ImGui_ImplOpenGL3_Shutdown();
+			//ImGui_ImplGlfw_Shutdown();
+			ImGui::DestroyContext();
 		}
 		GLFWwindow* getWindow() {
 			return window;

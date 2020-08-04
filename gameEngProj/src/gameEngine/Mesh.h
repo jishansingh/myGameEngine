@@ -62,7 +62,7 @@ namespace gameEngine {
 
 			initBuffers();
 		}
-		void Draw(std::shared_ptr <Shader>& shader) {
+		void Draw(std::shared_ptr <Shader>& shader, bool instanced, int count) {
 			shader->Use();
 
 			glBindVertexArray(vao);
@@ -112,7 +112,12 @@ namespace gameEngine {
 			//shader->setUniform1i(("material" + std::to_string(0) + ".specularTex").c_str(), diffuseTex[i]->getTextureUnit());
 			//diffuseTex[0].bind();
 			//glDrawElementsInstanced(GL_TRIANGLES,indices.size(), GL_UNSIGNED_INT, 0, 10000);
-			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+			if (instanced) {
+				glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, count);
+			}
+			else {
+				glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+			}
 			glBindVertexArray(0);
 
 		}

@@ -39,7 +39,8 @@ namespace gameEngine {
 
 		void initializeAttachments(int noOfAttach) {
 			for (int i = 0; i < noOfAttach; i++) {
-				result.push_back(std::make_shared<gameEngine::Texture>(*new gameEngine::Texture(GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_FLOAT, 1024, 1024)));
+				std::shared_ptr<Texture> temp = std::make_shared<gameEngine::Texture>(*new gameEngine::Texture(GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_FLOAT, 1024, 1024));
+				result.push_back(temp);
 			}
 		}
 
