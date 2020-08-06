@@ -65,7 +65,7 @@ namespace gameEngine{
 			//this camera is just for quad
 			Camera* tempCam = new Camera(glm::vec3(0.f, 0.f, 1.f));
 			winCam = std::make_shared<Camera>(*tempCam);
-			manager->addNewObj(winCam);
+
 			somLay = new Layer(window);
 
 			/*IMGUI_CHECKVERSION();
@@ -131,7 +131,7 @@ namespace gameEngine{
 		}
 		void setFinalShader(std::shared_ptr <Shader> shad) {
 			this->finalShader = shad;
-			Quad* tempQuad = new Quad(glm::vec3(-0.5f, -0.5f, 0.f), glm::vec3(0.f), 0.5f, 0.5f, finalShader, 0.f);
+			Quad* tempQuad = new Quad(glm::vec3(0.f), glm::vec3(0.f), 0.5f, 0.5f, finalShader, 0.f);
 			window2D = std::make_shared<Quad>(*tempQuad);
 		}
 		virtual void preRender(){}
@@ -142,19 +142,16 @@ namespace gameEngine{
 			ImVec4 clear_color = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);
 			float m_time = glfwGetTime();*/
 			while (!glfwWindowShouldClose(window)) {
-				//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-				//glEnable(GL_DEPTH_TEST);
-				//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 				
 
-				//manager->handleKeyboardInput(window);
-				//manager->handleKeyboardEvents();
-				////glBindFramebuffer(GL_FRAMEBUFFER, 0);
-				//std::shared_ptr<Texture> sol;
-				//for (int i = 0; i < frameObj.size(); i++) {
-				//	//updateProjMatrix(frameObj[i]->renderObj[0]->getShader());
-				//	frameObj[i]->render(window);
-				//}
+				manager->handleKeyboardInput(window);
+				manager->handleKeyboardEvents();
+				//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+				for (int i = 0; i < frameObj.size(); i++) {
+					//updateProjMatrix(frameObj[i]->renderObj[0]->getShader());
+					frameObj[i]->render(window);
+				}
 
 				glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
 				glViewport(0, 0, framebufferwidth, framebufferheight);
@@ -169,7 +166,8 @@ namespace gameEngine{
 				/*glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);*/
 				
-
+				glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
+				glViewport(0, 0, framebufferwidth, framebufferheight);
 				finalShader->Use();
 				for (int i = 0; i < finTex.size(); i++) {
 					finTex[i]->bind();
@@ -181,7 +179,7 @@ namespace gameEngine{
 
 				window2D->updateModelMatrix();
 
-				//window2D->Draw();
+				window2D->Draw();
 				finalShader->unUse();
 
 
@@ -196,11 +194,13 @@ namespace gameEngine{
 
 				preRender();
 				postRender();
+				
 				glfwSwapBuffers(window);
 				glfwPollEvents();
 				glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT);
 				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+				
 
 			}
 			ImGui_ImplOpenGL3_Shutdown();

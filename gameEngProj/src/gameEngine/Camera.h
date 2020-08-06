@@ -41,11 +41,11 @@ namespace gameEngine {
 		}
 		void onkeyPress(int key) {
 			if (key == GLFW_KEY_W) {
-				camPos += (frontVec) * 0.01f;
+				camPos += (frontVec) * 0.1f;
 				camFront = camPos + frontVec;
 			}
 			else if (key == GLFW_KEY_S) {
-				camPos -= (frontVec) * 0.01f;
+				camPos -= (frontVec) * 0.1f;
 				camFront = camPos + frontVec;
 			}
 			else if (key == GLFW_KEY_A) {

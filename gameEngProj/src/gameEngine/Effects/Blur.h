@@ -23,14 +23,12 @@ namespace gameEngine {
 	class FUN_API Blur :public EffectObj {
 		std::shared_ptr <frameRenderObject>pingpongfro[2];
 		std::shared_ptr <Shader> shady;
-		std::shared_ptr <ObjectRender> somQuad;
-		bool start = true;
-		int noOfIteration = 4;
+		std::shared_ptr<Quad> tempQuad;
 	public:
 		Blur() {
 			shady = std::make_shared<Shader>(*new Shader("pingPongBlurVertexShader.glsl", "pingPongBlurFragmentShader.glsl", ""));
-			somQuad = std::make_shared<Quad>(*new Quad(glm::vec3(-0.5f, -0.5f, 0.f), glm::vec3(0.f), 0.5f, 0.5f, shady, 0.f));
 			//(std::dynamic_pointer_cast<Quad>(somQuad))->addTexture(tex);
+			//tempQuad = std::make_shared<Quad>(*new Quad(glm::vec3(-0.5f, -0.5f, 0.f), glm::vec3(0.f), 0.5f, 0.5f, 0.f));
 			for (int i = 0; i < 2; i++) {
 				std::shared_ptr <framebufferObject> tempfbo = std::make_shared<framebufferObject>(*new framebufferObject(1, false));
 				pingpongfro[i] = std::make_shared<frameRenderObject>(*new pingPongFBO(tempfbo, quadCam));
@@ -41,7 +39,8 @@ namespace gameEngine {
 
 		void render(GLFWwindow* window, std::shared_ptr <Texture> tex, std::shared_ptr <Texture> resultTex) {
 			(std::dynamic_pointer_cast<Quad>(somQuad))->replaceTex(0,tex);
-
+			somQuad->setShader(shady);
+			const int noOfIteration = 4;
 			for (int k = 0; k < noOfIteration; k++) {
 				for (int i = 0; i < 2; i++) {
 					if (k == noOfIteration - 1 && i == 1) {

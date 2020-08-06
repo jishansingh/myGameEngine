@@ -35,10 +35,46 @@ namespace gameEngine {
 			rotation = rot;
 			float farWid = 2 * (width - offset);
 			float vertices_box[16]{
+				-1 * (width - offset),  (height - offset),0.f,1.f,
+				-1 * (width - offset), -1 * (height - offset),0.f,0.f,
+				 (width - offset), -1 * (height - offset),1.f,0.f,
+				 (width - offset),  (height - offset),1.f,1.f
+			};
+			unsigned int noOfVertices = sizeof(vertices_box) / (4 * sizeof(float));
+			GLuint indVert[] = {
+				2,1,0,
+				3,2,0
+			};
+			glBindVertexArray(0);
+			glGenVertexArrays(1, &vao);
+			glBindVertexArray(vao);
+
+			glGenBuffers(1, &vbo);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			glBufferData(GL_ARRAY_BUFFER, noOfVertices * 4 * sizeof(float), &vertices_box[0], GL_STATIC_DRAW);
+
+			glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+			glEnableVertexAttribArray(0);
+
+			glGenBuffers(1, &ibo);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(GLuint), indVert, GL_STATIC_DRAW);
+		}
+		Quad(glm::vec3 pos, glm::vec3 rot, float width, float height, const float offset = 0.01f) {
+			position = pos;
+			rotation = rot;
+			float farWid = 2 * (width - offset);
+			/*float vertices_box[16]{
 				0.f,2 * (height - offset),0.f,1.f,
 				0.f,0.f,0.f,0.f,
 				2 * (width - offset),0.f,1.f,0.f,
 				2 * (width - offset),2 * (height - offset),1.f,1.f
+			};*/
+			float vertices_box[16]{
+				-1*(width - offset),  (height - offset),0.f,1.f,
+				-1*(width - offset), -1*(height - offset),0.f,0.f,
+				 (width - offset), -1*(height - offset),1.f,0.f,
+				 (width - offset),  (height - offset),1.f,1.f
 			};
 			unsigned int noOfVertices = sizeof(vertices_box) / (4 * sizeof(float));
 			GLuint indVert[] = {
@@ -74,12 +110,16 @@ namespace gameEngine {
 		void addTexture(std::shared_ptr <Texture> tex) {
 			textures.push_back(tex);
 		}
+		void setShader(std::shared_ptr <Shader> somShader) {
+			shady = somShader;
+		}
 		void replaceTex(int i, std::shared_ptr <Texture> tex) {
 			if (i > textures.size()) {
 				return;
 			}
 			else if (i == textures.size()) {
 				textures.push_back(tex);
+				return;
 			}
 			//how to lose shared_ptr
 			//delete textures[i];
@@ -139,6 +179,9 @@ namespace gameEngine {
 		}
 		std::shared_ptr <Shader> getShader() {
 			return shady;
+		}
+		void setShader(std::shared_ptr <Shader> somShader) {
+			shady = somShader;
 		}
 		inline glm::vec3 getPosition() {
 			return position;

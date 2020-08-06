@@ -138,7 +138,7 @@ namespace gameEngine {
 				bind();
 				tex->bindToFrambuffer(attach);
 			}
-			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+			glDrawBuffer(GL_COLOR_ATTACHMENT0 + attach);
 		}
 
 		unsigned int getFBO() {
