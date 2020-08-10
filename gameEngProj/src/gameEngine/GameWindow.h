@@ -160,7 +160,7 @@ namespace gameEngine{
 				glBindVertexArray(0);
 				glBindTexture(GL_TEXTURE_2D, 0);
 
-				
+				glDisable(GL_DEPTH_TEST);
 				//glClear(GL_COLOR_BUFFER_BIT);
 
 				/*glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -194,12 +194,12 @@ namespace gameEngine{
 
 				preRender();
 				postRender();
-				
+				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 				glfwSwapBuffers(window);
 				glfwPollEvents();
 				glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT);
-				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+				
 				
 
 			}

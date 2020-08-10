@@ -1,18 +1,14 @@
 #version 440
-layout (location = 0) out vec4 fs_color;
-in vec2 fs_texcoord;
+//layout (location = 0) out vec4 fs_color;
+in vec2 vs_texcoord;
 
-//out vec4 fs_color;
-struct Material{
-	sampler2D diffuseTex;
-	sampler2D specularTex;
-};
+out vec4 fs_color;
 
-
-uniform Material material0;
+uniform sampler2D texture0;
+uniform sampler2D texture1;
 void main(){
-	
-	fs_color = texture(material0.diffuseTex,fs_texcoord);
+	fs_color = texture(texture0,vs_texcoord) + texture(texture1,vs_texcoord);
+	fs_color = fs_color/2;
 	//fs_color += texture(material0.specularTex,fs_texcoord)*0.6;
 	/*if(material0.specularTex){
 		fs_color = texture(material0.specularTex,fs_texcoord);

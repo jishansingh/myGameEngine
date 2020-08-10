@@ -33,12 +33,12 @@ namespace gameEngine {
 			shady = QShad;
 			position = pos;
 			rotation = rot;
-			float farWid = 2 * (width - offset);
+			float farWid = 1.f;
 			float vertices_box[16]{
-				-1 * (width - offset),  (height - offset),0.f,1.f,
+				-1 * (width - offset),  (height - offset),0.f,farWid,
 				-1 * (width - offset), -1 * (height - offset),0.f,0.f,
-				 (width - offset), -1 * (height - offset),1.f,0.f,
-				 (width - offset),  (height - offset),1.f,1.f
+				 (width - offset), -1 * (height - offset),farWid,0.f,
+				 (width - offset),  (height - offset),farWid,farWid
 			};
 			unsigned int noOfVertices = sizeof(vertices_box) / (4 * sizeof(float));
 			GLuint indVert[] = {
@@ -141,7 +141,7 @@ namespace gameEngine {
 			glm::mat4 projMatrix(1.f);
 			float nearPlane = 0.1f;
 			float farPlane = 100.f;
-			float fov = 45.f;
+			float fov = 53.f;
 			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
 			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 		}

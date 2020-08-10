@@ -54,7 +54,7 @@ namespace gameEngine {
 		void render(GLFWwindow* window) {
 			fbo->bind();
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-			//glEnable(GL_DEPTH_TEST);
+			glEnable(GL_DEPTH_TEST);
 			glViewport(0, 0, 1024, 1024);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			for (int i = 0; i < renderObj.size(); i++) {
