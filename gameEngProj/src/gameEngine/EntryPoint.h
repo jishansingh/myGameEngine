@@ -12,16 +12,8 @@ int main(int argc, char* argv[]) {
 	
 	gameEngine::pingPongFBO::initHorizon();
 	gameEngine::GameWindow* som = new gameEngine::GameWindow("mywindow");
-	gameEngine::EffectObj::initCamera();
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	gameEngine::CommonUsed::initCamera();
 
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(som->getWindow(), true);
-	ImGui_ImplOpenGL3_Init("#version 440");
-
-	gameEngine::texOperation::initCamera();
 	gameEngine::createEngine(som);
 	som->render();
 	delete som;

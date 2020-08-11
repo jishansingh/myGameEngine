@@ -20,6 +20,7 @@ namespace gameEngine {
 		frameRenderObject(std::shared_ptr<framebufferObject> fObj, std::shared_ptr <Camera> cam) {
 			fbo = fObj;
 			winCam = cam;
+
 		}
 
 		inline void addRenderObj(std::shared_ptr <ObjectRender> somObj) {
@@ -27,7 +28,6 @@ namespace gameEngine {
 		}
 
 		virtual ~frameRenderObject() {
-			std::cout << "yes";
 		}
 
 		void setUniformInt(char* name, int som) {

@@ -210,14 +210,15 @@ namespace gameEngine {
 			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 		}
 		void Draw(const bool instanced = false, const int count = 1) {
-			model->Draw(shady, false, 0);
+			model->Draw(shady, instanced, count);
 		}
 	};
 
-	class instancedRenderer :public ObjectRender {
+	class FUN_API instancedRenderer :public ObjectRender {
 		std::shared_ptr<ObjectRender> instancedObj;
 		std::vector<glm::vec3> positions;
 		std::vector<glm::vec3> color;
+	public:
 		instancedRenderer(std::shared_ptr<ObjectRender> orgObj) {
 			instancedObj = orgObj;
 		}
@@ -242,7 +243,8 @@ namespace gameEngine {
 			this->getShader()->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 		}
 		void Draw(const bool instanced = false, const int count = 1) {
-			instancedObj->Draw(instanced,count);
+			sendToShader();
+			instancedObj->Draw(true,positions.size());
 		}
 		std::shared_ptr <Shader> getShader() { return instancedObj->getShader(); }
 
@@ -252,7 +254,7 @@ namespace gameEngine {
 		inline glm::vec3 getRotation() {
 			return instancedObj->getRotation();
 		}
-		void addInstance(glm::vec3& pos, glm::vec3& col) {
+		void addInstance(glm::vec3 pos, glm::vec3 col) {
 			positions.push_back(pos);
 			color.push_back(col);
 		}
@@ -268,6 +270,160 @@ namespace gameEngine {
 				this->getShader()->setUniform3f(temp.c_str(), GL_FALSE, color[i]);
 			}
 		}
+	};
+	class FUN_API Cube :public ObjectRender {
+		std::shared_ptr <Shader> shady;
+		unsigned int vao;
+		unsigned int vbo;
+		unsigned int ibo;
+		glm::vec3 position;
+		glm::vec3 rotation;
+		std::vector<std::shared_ptr<Texture>> textures;
+	public:
+		Cube(glm::vec3 pos, glm::vec3 rot, float length, float width, float height, std::shared_ptr<Shader> QShad, const float offset = 0.01f) {
+			shady = QShad;
+			position = pos;
+			rotation = rot;
+			length /= 2;
+			width /= 2;
+			height /= 2;
+			float farWid = 1.f;
+			float vertices[] = {
+				// back face
+				-length, -height, -width,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+				 length,  height, -width,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+				 length, -height, -width,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+				 length,  height, -width,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+				-length, -height, -width,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+				-length,  height, -width,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+				// front face	   
+				-length, -height,  width,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+				 length, -height,  width,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+				 length,  height,  width,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+				 length,  height,  width,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+				-length,  height,  width,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+				-length, -height,  width,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+				// left face	   
+				-length,  height,  width, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+				-length,  height, -width, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+				-length, -height, -width, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+				-length, -height, -width, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+				-length, -height,  width, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+				-length,  height,  width, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+				// right face	   
+				 length,  height,  width,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+				 length, -height, -width,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+				 length,  height, -width,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+				 length, -height, -width,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+				 length,  height,  width,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+				 length, -height,  width,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+				// bottom face	   
+				-length, -height, -width,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+				 length, -height, -width,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+				 length, -height,  width,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+				 length, -height,  width,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+				-length, -height,  width,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+				-length, -height, -width,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+				// top face		  
+				-length,  height, -width,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+				 length,  height , width,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+				 length,  height, -width,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+				 length,  height,  width,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+				-length,  height, -width,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+				-length,  height,  width,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+			};
+
+			unsigned int noOfVertices = sizeof(vertices) / (8 * sizeof(float));
+
+			glBindVertexArray(0);
+			glGenVertexArrays(1, &vao);
+			glBindVertexArray(vao);
+
+			glGenBuffers(1, &vbo);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			glBufferData(GL_ARRAY_BUFFER, noOfVertices * 8 * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
+			glEnableVertexAttribArray(0);
+
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+			glEnableVertexAttribArray(1);
+
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+			glEnableVertexAttribArray(2);
+		}
+		~Cube() {
+			glDeleteBuffers(1, &vbo);
+			//glDeleteBuffers(1, &ibo);
+			glDeleteVertexArrays(1, &vao);
+		}
+		inline glm::vec3 getPosition() {
+			return position;
+		}
+		inline glm::vec3 getRotation() {
+			return rotation;
+		}
+		void addTexture(std::shared_ptr <Texture> tex) {
+			textures.push_back(tex);
+		}
+		void setShader(std::shared_ptr <Shader> somShader) {
+			shady = somShader;
+		}
+		void replaceTex(int i, std::shared_ptr <Texture> tex) {
+			if (i > textures.size()) {
+				return;
+			}
+			else if (i == textures.size()) {
+				textures.push_back(tex);
+				return;
+			}
+			//how to lose shared_ptr
+			//delete textures[i];
+			textures[i] = tex;
+		}
+		void updateModelMatrix() {
+			glm::mat4 modelMatrix(1.f);
+			modelMatrix = glm::translate(modelMatrix, position);
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
+			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
+			modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
+			shady->setUniformMatrix4fv("modelMatrix", GL_FALSE, modelMatrix);
+		}
+		void updateProjMatrix(GLFWwindow* window) {
+			int framebufferwidth;
+			int framebufferheight;
+			glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
+			glm::mat4 projMatrix(1.f);
+			float nearPlane = 0.1f;
+			float farPlane = 100.f;
+			float fov = 53.f;
+			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
+			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
+		}
+
+		void Draw(const bool instanced = false, const int count = 1) {
+			shady->Use();
+
+			for (int i = 0; i < textures.size(); i++) {
+				textures[i]->bind();
+				std::string temp = "texture" + std::to_string(i);
+				shady->setUniform1i(temp.c_str(), textures[i]->getTextureUnit());
+			}
+			glBindVertexArray(vao);
+
+			if (instanced) {
+				glDrawArraysInstanced(GL_TRIANGLES, 0, 36, count);
+			}
+			else {
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
+		}
+		void onkeyPress(int key) {}
+		std::shared_ptr<Shader> getShader() {
+			return shady;
+		}
+
 	};
 
 }
