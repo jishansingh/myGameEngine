@@ -7,8 +7,10 @@ namespace gameEngine {
 	protected:
 		static std::shared_ptr<gameEngine::Camera> quadCam;
 		static std::shared_ptr<Quad> somQuad;
+		static std::shared_ptr <Cube> somCube;
 	public:
 		void static initCamera() {
+			somCube = std::make_shared <Cube>(*new Cube(glm::vec3(0.f), glm::vec3(0.f), 1.f, 1.f, 1.f));
 			quadCam = std::make_shared<Camera>(*new Camera(glm::vec3(0.f, 0.f, 1.f)));
 			somQuad = std::make_shared<Quad>(*new Quad(glm::vec3(0.f), glm::vec3(0.f), 0.5f, 0.5f, 0.f));
 		}
@@ -21,3 +23,4 @@ namespace gameEngine {
 
 std::shared_ptr<gameEngine::Camera> gameEngine::CommonUsed::quadCam;
 std::shared_ptr<gameEngine::Quad> gameEngine::CommonUsed::somQuad;
+std::shared_ptr<gameEngine::Cube> gameEngine::CommonUsed::somCube;

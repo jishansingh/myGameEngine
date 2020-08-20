@@ -223,24 +223,10 @@ namespace gameEngine {
 			instancedObj = orgObj;
 		}
 		void updateModelMatrix() {
-			glm::mat4 modelMatrix(1.f);
-			modelMatrix = glm::translate(modelMatrix, getPosition());
-			modelMatrix = glm::rotate(modelMatrix, glm::radians(getRotation().x), glm::vec3(1.f, 0.f, 0.f));
-			modelMatrix = glm::rotate(modelMatrix, glm::radians(getRotation().y), glm::vec3(0.f, 1.f, 0.f));
-			modelMatrix = glm::rotate(modelMatrix, glm::radians(getRotation().z), glm::vec3(0.f, 0.f, 1.f));
-			modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
-			this->getShader()->setUniformMatrix4fv("modelMatrix", GL_FALSE, modelMatrix);
+			instancedObj->updateModelMatrix();
 		}
 		void updateProjMatrix(GLFWwindow* window) {
-			int framebufferwidth;
-			int framebufferheight;
-			glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
-			glm::mat4 projMatrix(1.f);
-			float nearPlane = 0.1f;
-			float farPlane = 100.f;
-			float fov = 45.f;
-			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
-			this->getShader()->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
+			instancedObj->updateProjMatrix(window);
 		}
 		void Draw(const bool instanced = false, const int count = 1) {
 			sendToShader();
@@ -257,6 +243,10 @@ namespace gameEngine {
 		void addInstance(glm::vec3 pos, glm::vec3 col) {
 			positions.push_back(pos);
 			color.push_back(col);
+		}
+		void updateData(std::vector<glm::vec3> pos, std::vector<glm::vec3> col) {
+			positions = pos;
+			color = col;
 		}
 
 		void sendToShader() {
@@ -276,12 +266,86 @@ namespace gameEngine {
 		unsigned int vao;
 		unsigned int vbo;
 		unsigned int ibo;
+		float size;
 		glm::vec3 position;
 		glm::vec3 rotation;
 		std::vector<std::shared_ptr<Texture>> textures;
 	public:
 		Cube(glm::vec3 pos, glm::vec3 rot, float length, float width, float height, std::shared_ptr<Shader> QShad, const float offset = 0.01f) {
+			size = 1.f;
 			shady = QShad;
+			position = pos;
+			rotation = rot;
+			length /= 2;
+			width /= 2;
+			height /= 2;
+			float farWid = 1.f;
+			float vertices[] = {
+				// back face
+				-length, -height, -width,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+				 length,  height, -width,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+				 length, -height, -width,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
+				 length,  height, -width,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
+				-length, -height, -width,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
+				-length,  height, -width,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
+				// front face	   
+				-length, -height,  width,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+				 length, -height,  width,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
+				 length,  height,  width,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+				 length,  height,  width,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
+				-length,  height,  width,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
+				-length, -height,  width,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
+				// left face	   
+				-length,  height,  width, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+				-length,  height, -width, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
+				-length, -height, -width, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+				-length, -height, -width, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
+				-length, -height,  width, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+				-length,  height,  width, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
+				// right face	   
+				 length,  height,  width,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+				 length, -height, -width,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+				 length,  height, -width,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
+				 length, -height, -width,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
+				 length,  height,  width,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
+				 length, -height,  width,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
+				// bottom face	   
+				-length, -height, -width,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+				 length, -height, -width,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
+				 length, -height,  width,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+				 length, -height,  width,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
+				-length, -height,  width,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
+				-length, -height, -width,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
+				// top face		  
+				-length,  height, -width,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+				 length,  height , width,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+				 length,  height, -width,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
+				 length,  height,  width,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
+				-length,  height, -width,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
+				-length,  height,  width,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+			};
+
+			unsigned int noOfVertices = sizeof(vertices) / (8 * sizeof(float));
+
+			glBindVertexArray(0);
+			glGenVertexArrays(1, &vao);
+			glBindVertexArray(vao);
+
+			glGenBuffers(1, &vbo);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			glBufferData(GL_ARRAY_BUFFER, noOfVertices * 8 * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), 0);
+			glEnableVertexAttribArray(0);
+
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+			glEnableVertexAttribArray(1);
+
+			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+			glEnableVertexAttribArray(2);
+		}
+		Cube(glm::vec3 pos, glm::vec3 rot, float length, float width, float height, const float offset = 0.01f) {
+			size = 1.f;
 			position = pos;
 			rotation = rot;
 			length /= 2;
@@ -381,13 +445,16 @@ namespace gameEngine {
 			//delete textures[i];
 			textures[i] = tex;
 		}
+		void setSize(float ko) {
+			size = ko;
+		}
 		void updateModelMatrix() {
 			glm::mat4 modelMatrix(1.f);
 			modelMatrix = glm::translate(modelMatrix, position);
 			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
 			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
 			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
-			modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
+			modelMatrix = glm::scale(modelMatrix, glm::vec3(size));
 			shady->setUniformMatrix4fv("modelMatrix", GL_FALSE, modelMatrix);
 		}
 		void updateProjMatrix(GLFWwindow* window) {

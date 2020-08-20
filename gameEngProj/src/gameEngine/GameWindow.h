@@ -4,7 +4,7 @@
 #include"Camera.h"
 #include"renderObj.h"
 #include"frameRenderObject.h"
-
+#include"Light.h"
 #include"Layer.h"
 
 

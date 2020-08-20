@@ -32,13 +32,7 @@ namespace gameEngine {
 			glDrawBuffers(drawAttach.size(), drawAttach.data());
 			rbo = -1;
 			depthTex = NULL;
-			if (!depth) {
-				glGenRenderbuffers(1, &rbo);
-				glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-			}
-			else {
+			if (depth) {
 				bind();
 				Texture* tempTex = new Texture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, WIDTH, HEIGHT);
 				depthTex = std::make_shared<Texture>(*tempTex);
@@ -67,13 +61,7 @@ namespace gameEngine {
 			glDrawBuffers(drawAttach.size(), drawAttach.data());
 			rbo = -1;
 			depthTex = NULL;
-			if (!depth) {
-				glGenRenderbuffers(1, &rbo);
-				glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-			}
-			else {
+			if (depth) {
 				bind();
 				Texture* tempTex = new Texture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, WIDTH, HEIGHT);
 				depthTex = std::make_shared<Texture>(*tempTex);
@@ -95,13 +83,7 @@ namespace gameEngine {
 			//glDrawBuffers(drawAttach.size(), drawAttach.data());
 			rbo = -1;
 			depthTex = NULL;
-			if (!depth) {
-				glGenRenderbuffers(1, &rbo);
-				glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-			}
-			else {
+			if (depth) {
 				bind();
 				Texture* tempTex = new Texture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, WIDTH, HEIGHT);
 				depthTex = std::make_shared<Texture>(*tempTex);
@@ -118,6 +100,10 @@ namespace gameEngine {
 				glDeleteRenderbuffers(1, &rbo);
 			}
 			glDeleteFramebuffers(1, &fbo);
+		}
+		void check() {
+			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+				std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 		}
 		void bind() {
 			glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -140,7 +126,11 @@ namespace gameEngine {
 			}
 			glDrawBuffer(GL_COLOR_ATTACHMENT0 + attach);
 		}
-
+		void setDepthTex(std::shared_ptr<Texture> tex) {
+			depthTex = tex;
+			bind();
+			tex->bindAsDepthBuffer();
+		}
 		unsigned int getFBO() {
 			return fbo;
 		}

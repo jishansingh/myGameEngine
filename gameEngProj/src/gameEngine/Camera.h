@@ -41,11 +41,11 @@ namespace gameEngine {
 		}
 		void onkeyPress(int key) {
 			if (key == GLFW_KEY_W) {
-				camPos += (frontVec) * 0.1f;
+				camPos += (frontVec) * 0.01f;
 				camFront = camPos + frontVec;
 			}
 			else if (key == GLFW_KEY_S) {
-				camPos -= (frontVec) * 0.1f;
+				camPos -= (frontVec) * 0.01f;
 				camFront = camPos + frontVec;
 			}
 			else if (key == GLFW_KEY_A) {
@@ -55,11 +55,11 @@ namespace gameEngine {
 				rotateCam(true);
 			}
 			else if (key == GLFW_KEY_X) {
-				camPos -= (worldUp) * 0.01f;
+				camPos -= (worldUp) * 0.001f;
 				camFront = camPos + frontVec;
 			}
 			else if (key == GLFW_KEY_Z) {
-				camPos += (worldUp) * 0.01f;
+				camPos += (worldUp) * 0.001f;
 				camFront = camPos + frontVec;
 			}
 			
@@ -68,6 +68,9 @@ namespace gameEngine {
 		void sendToShader(std::shared_ptr <Shader> shady) {
 			updateViewMatrix();
 			shady->setUniformMatrix4fv("viewMatrix", GL_FALSE, viewMatrix);
+		}
+		void sendCamPos(std::shared_ptr <Shader> shady, const std::string nam) {
+			shady->setUniform3f(nam.c_str(), GL_FALSE, camPos);
 		}
 	};
 }
