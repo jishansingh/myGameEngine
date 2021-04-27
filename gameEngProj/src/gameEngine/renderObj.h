@@ -27,6 +27,7 @@ namespace gameEngine {
 		unsigned int ibo;
 		glm::vec3 position;
 		glm::vec3 rotation;
+		float size = 1.f;
 		std::vector<std::shared_ptr<Texture>> textures;
 	public:
 		Quad(glm::vec3 pos,glm::vec3 rot,float width, float height, std::shared_ptr<Shader> QShad ,const float offset=0.01f) {
@@ -131,7 +132,7 @@ namespace gameEngine {
 			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
 			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
 			modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
-			modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
+			modelMatrix = glm::scale(modelMatrix, glm::vec3(size));
 			shady->setUniformMatrix4fv("modelMatrix", GL_FALSE, modelMatrix);
 		}
 		void updateProjMatrix(GLFWwindow* window) {
@@ -145,7 +146,9 @@ namespace gameEngine {
 			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
 			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 		}
-
+		void setSize(float inp) {
+			size = inp;
+		}
 		void Draw(const bool instanced = false, const int count = 1) {
 			shady->Use();
 

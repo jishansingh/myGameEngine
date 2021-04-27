@@ -90,7 +90,7 @@ namespace gameEngine {
 			fbo->unBind();
 			if (sceneLight) {
 				((LightBaseClass*)sceneLight)->render(window, result[0], winCam);
-				((LightBaseClass*)sceneLight)->Draw(window, fbo->depthTex, result[0],winCam);
+				//((LightBaseClass*)sceneLight)->Draw(window, fbo->depthTex, result[0],winCam);
 			}
 			effectApply(window);
 
