@@ -1,15 +1,28 @@
 #pragma once
 #include"Core.h"
 #include"libs.h"
+#include"GameWindow.h"
 #include<imgui.h>
 #include<imgui_impl_glfw.h>
 #include<imgui_impl_opengl3.h>
 
 namespace gameEngine {
+
 	class FUN_API Layer {
-		GLFWwindow* window;
 	public:
-		Layer(GLFWwindow* win) { window = win; }
+		GameWindow* window;
+		Layer(GameWindow* win);
+		virtual void onAttach() {
+		}
+		virtual void onUpdate() {
+			
+		}
+	};
+
+
+	class FUN_API ImGUILayer :public Layer{
+	public:
+		ImGUILayer(GameWindow* win): Layer(win) {  }
 		void onAttach() {
 			IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
@@ -56,7 +69,7 @@ namespace gameEngine {
 			ImGuiIO& io = ImGui::GetIO();
 			int framebufferwidth;
 			int framebufferheight;
-			glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
+			glfwGetFramebufferSize(window->getWindow(), &framebufferwidth, &framebufferheight);
 			io.DisplaySize = ImVec2(800, 800);
 			float time = glfwGetTime();
 			io.DeltaTime = 1 / 60.f;

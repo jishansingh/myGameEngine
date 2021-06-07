@@ -101,6 +101,34 @@ namespace gameEngine {
 			}
 			glDeleteFramebuffers(1, &fbo);
 		}
+
+		void addAttachment(int numAttachments,bool depth=true) {
+			const unsigned int HEIGHT = 1024;
+			const unsigned int WIDTH = 1024;
+			for (int i = 0; i < numAttachments; i++) {
+				bind();
+				Texture* temp = new Texture(GL_TEXTURE_2D, GL_RGBA, GL_RGBA, GL_FLOAT, WIDTH, HEIGHT);
+				temp->bindToFrambuffer(i);
+				textures.push_back(std::make_shared<Texture>(*temp));
+				temp->unbind();
+			}
+			std::vector<GLenum> drawAttach;
+			for (int i = 0; i < numAttachments; i++) {
+				drawAttach.push_back(GL_COLOR_ATTACHMENT0 + i);
+			}
+			//glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+			glDrawBuffers(drawAttach.size(), drawAttach.data());
+			rbo = -1;
+			if (depth&&!depthTex) {
+				bind();
+				Texture* tempTex = new Texture(GL_TEXTURE_2D, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT, WIDTH, HEIGHT);
+				depthTex = std::make_shared<Texture>(*tempTex);
+				depthTex->bindAsDepthBuffer();
+				//depthTex->unbind();
+			}
+		}
+
 		void check() {
 			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 				std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;

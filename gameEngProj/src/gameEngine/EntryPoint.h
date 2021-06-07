@@ -1,10 +1,11 @@
 #pragma once
 #include"GameWindow.h"
+#include"Texture.h"
 #include"Effects/Blur.h"
 #include"Effects/Bloom.h"
 extern void gameEngine::createEngine(GameWindow* som);
 
-GLint gameEngine::Texture::totalTexUnit = 0;
+
 
 
 

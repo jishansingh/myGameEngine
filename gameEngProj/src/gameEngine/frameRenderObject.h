@@ -21,7 +21,7 @@ namespace gameEngine {
 	class FUN_API frameRenderObject :public sharedObj {
 		std::shared_ptr<framebufferObject> fbo;
 		std::shared_ptr <Camera> winCam;
-		LightBaseClass* sceneLight;
+		LightBaseClass* sceneLight = NULL;
 	protected:
 		std::unordered_map<std::string,std::shared_ptr <EffectObj> > postEff;
 	public:
@@ -30,11 +30,10 @@ namespace gameEngine {
 		frameRenderObject(std::shared_ptr<framebufferObject> fObj, std::shared_ptr <Camera> cam) {
 			fbo = fObj;
 			winCam = cam;
-			sceneLight = NULL;
 		}
+
 		frameRenderObject(std::shared_ptr<framebufferObject> fObj) {
 			fbo = fObj;
-			sceneLight = NULL;
 		}
 		inline void setCamera(std::shared_ptr <Camera> cam) {
 			winCam = cam;

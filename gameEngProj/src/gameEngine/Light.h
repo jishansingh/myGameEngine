@@ -7,10 +7,21 @@
 namespace gameEngine {
 
 	class frameRenderObject;
+
+	class FUN_API LightObj {
+	public:
+		glm::vec3* position;
+		glm::vec3* color;
+		float power = 0.f;
+		LightObj(glm::vec3 pos, glm::vec3 col) {
+			position = new glm::vec3(pos);
+			color = new glm::vec3(col);
+		}
+
+	};
+
 	class FUN_API Light : public LightBaseClass {
-		std::vector<glm::vec3> positions;
-		std::vector<glm::vec3> color;
-		std::vector<float> power;
+		std::vector<std::shared_ptr<LightObj>> lightArr;
 		std::vector<std::shared_ptr<Texture>>gbuffer;
 		std::shared_ptr<Shader>shady;
 		std::shared_ptr<Shader>cubeShader;
@@ -42,22 +53,22 @@ namespace gameEngine {
 			for (int i = 0; i < gbuffer.size(); i++) {
 				somQuad->replaceTex(i, gbuffer[i]);
 			}
-			shady->setUniform1i("noOfLight", positions.size());
-			for (int i = 0; i < positions.size(); i++) {
+			shady->setUniform1i("noOfLight", lightArr.size());
+			for (int i = 0; i < lightArr.size(); i++) {
 				std::string temp = "sceneLight[" + std::to_string(i) + "]";
-				shady->setUniform3f((temp + ".position").c_str(),GL_FALSE, positions[i]);
-				shady->setUniform3f((temp + ".color").c_str(), GL_FALSE, color[i]);
+				shady->setUniform3f((temp + ".position").c_str(),GL_FALSE, *lightArr[i]->position);
+				shady->setUniform3f((temp + ".color").c_str(), GL_FALSE, *lightArr[i]->color);
 			}
 			sceneCam->sendCamPos(shady,"camPos");
 			glDisable(GL_DEPTH_TEST);
 			fro->render(window);
 		}
 		void addNewLight(glm::vec3 pos, glm::vec3 col) {
-			positions.push_back(pos);
-			color.push_back(col);
+			lightArr.push_back(std::shared_ptr<LightObj>(new LightObj(pos,col)));
 		}
-		void update() {
-			lightDraw->updateData(positions, color);
+		void update(int index) {
+			lightDraw->updateDataIndex(index);
+			
 		}
 		void Draw(GLFWwindow* window, std::shared_ptr<Texture>depthTex, std::shared_ptr <Texture> resultTex, std::shared_ptr <Camera> sceneCam) {
 			drawFRO->getFBO()->bind();
@@ -68,7 +79,6 @@ namespace gameEngine {
 			drawFRO->getFBO()->addTexture(resultTex, 0);
 			drawFRO->setCamera(sceneCam);
 			drawFRO->getFBO()->check();
-			update();
 			glEnable(GL_DEPTH_TEST);
 			if (drawLight) {
 				lightDraw->getShader()->Use();

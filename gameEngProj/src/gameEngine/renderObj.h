@@ -219,14 +219,14 @@ namespace gameEngine {
 
 	class FUN_API instancedRenderer :public ObjectRender {
 		std::shared_ptr<ObjectRender> instancedObj;
-		std::vector<glm::vec3> positions;
-		std::vector<glm::vec3> color;
+		std::vector<glm::vec3*> positions;
+		std::vector<glm::vec3*> color;
 	public:
 		instancedRenderer(std::shared_ptr<ObjectRender> orgObj) {
 			instancedObj = orgObj;
 		}
 		void updateModelMatrix() {
-			instancedObj->updateModelMatrix();
+			sendToShader();
 		}
 		void updateProjMatrix(GLFWwindow* window) {
 			instancedObj->updateProjMatrix(window);
@@ -244,10 +244,19 @@ namespace gameEngine {
 			return instancedObj->getRotation();
 		}
 		void addInstance(glm::vec3 pos, glm::vec3 col) {
-			positions.push_back(pos);
-			color.push_back(col);
+			positions.push_back(new glm::vec3(pos));
+			color.push_back(new glm::vec3(col));
 		}
-		void updateData(std::vector<glm::vec3> pos, std::vector<glm::vec3> col) {
+		void updateDataIndex(int index) {
+			glm::mat4 modelMatrix(1.f);
+			modelMatrix = glm::translate(modelMatrix, *positions[index]);
+			modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
+			std::string temp = "offsets[" + std::to_string(index) + "]";
+			this->getShader()->setUniformMatrix4fv(temp.c_str(), GL_FALSE, modelMatrix);
+			temp = "colors[" + std::to_string(index) + "]";
+			this->getShader()->setUniform3f(temp.c_str(), GL_FALSE, *color[index]);
+		}
+		void setPosition(std::vector<glm::vec3*> pos, std::vector<glm::vec3*> col) {
 			positions = pos;
 			color = col;
 		}
@@ -255,12 +264,12 @@ namespace gameEngine {
 		void sendToShader() {
 			for (int i = 0; i < positions.size(); i++) {
 				glm::mat4 modelMatrix(1.f);
-				modelMatrix = glm::translate(modelMatrix, positions[i]);
+				modelMatrix = glm::translate(modelMatrix, *positions[i]);
 				modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
 				std::string temp = "offsets[" + std::to_string(i) + "]";
 				this->getShader()->setUniformMatrix4fv(temp.c_str(), GL_FALSE, modelMatrix);
 				temp = "colors[" + std::to_string(i) + "]";
-				this->getShader()->setUniform3f(temp.c_str(), GL_FALSE, color[i]);
+				this->getShader()->setUniform3f(temp.c_str(), GL_FALSE, *color[i]);
 			}
 		}
 	};

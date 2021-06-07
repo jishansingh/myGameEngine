@@ -30,7 +30,6 @@ GLuint gameEngine::Shader::loadShader(GLuint type, std::string vertexSource) {
 	glGetShaderiv(shader_id, GL_COMPILE_STATUS, &success);
 	if (!success) {
 		glGetShaderInfoLog(shader_id, 512, NULL, infoLog);
-		std::cout << "ERROR: LOADING SHADER COULD NOT COMPILE SHADER" << filename << std::endl;
 		std::cout << infoLog << std::endl;
 		return false;
 	}
@@ -39,7 +38,7 @@ GLuint gameEngine::Shader::loadShader(GLuint type, std::string vertexSource) {
 
 	return shader_id;
 }
-void gameEngine::Shader::linkProgram(GLuint vertexShader, GLuint fragmentShader, GLuint geometryShader = 0) {
+void gameEngine::Shader::linkProgram(GLuint vertexShader, GLuint fragmentShader, GLuint geometryShader) {
 	this->prog_id = glCreateProgram();
 	glAttachShader(this->prog_id, vertexShader);
 	glAttachShader(this->prog_id, fragmentShader);
@@ -65,7 +64,7 @@ gameEngine::Shader::Shader(const char* vertexFile, const char* fragmentFile, con
 
 	vertexShader = loadShader(GL_VERTEX_SHADER, this->loadShaderSource((char*)vertexFile));
 	fragmentShader = loadShader(GL_FRAGMENT_SHADER, this->loadShaderSource((char*)fragmentFile));
-	if (geometryFile != "") {
+	if (geometryFile&&*geometryFile != '\0') {
 		geometryShader = loadShader(GL_GEOMETRY_SHADER, this->loadShaderSource((char*)geometryFile));
 	}
 	linkProgram(vertexShader, fragmentShader, geometryShader);

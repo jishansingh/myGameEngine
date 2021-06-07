@@ -1,5 +1,8 @@
 #pragma once
 #include"Texture.h"
+
+GLint gameEngine::Texture::totalTexUnit = 0;
+
 gameEngine::Texture::Texture(GLenum type, GLint inFormat, GLint outFormat, GLenum storageFormat, int wid, int high) {
 	this->width = wid;
 	this->height = high;

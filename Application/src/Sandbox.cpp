@@ -32,11 +32,8 @@ public:
 };
 
 void gameEngine::createEngine(GameWindow* som) {
-	std::shared_ptr<gameEngine::framebufferObject> fbo = std::make_shared<gameEngine::framebufferObject>(*new gameEngine::framebufferObject(3));
-	std::shared_ptr <gameEngine::Camera> cam = std::make_shared < gameEngine::Camera>(*new gameEngine::Camera(glm::vec3(0.f, 0.f, 1.f)));
-	std::shared_ptr <gameEngine::frameRenderObject> fro = std::make_shared <mySand>( *new mySand(fbo, cam));
-	std::shared_ptr<gameEngine::EffectObj> slp = std::make_shared<gameEngine::Bloom>(*new gameEngine::Bloom());
-	fro->addEffect("bloom", slp);
+	std::shared_ptr<gameEngine::GameViewLayer> glObj = std::make_shared<gameEngine::GameViewLayer>(*new gameEngine::GameViewLayer(som));
+
 	//std::shared_ptr <gameEngine::Shader> modelShader    = std::make_shared <gameEngine::Shader>   ( *new gameEngine::Shader("modelVertexShader.glsl", "modelFragmentShader.glsl", ""));
 	
 	//std::shared_ptr <gameEngine::ObjectRender> somLoad   = std::make_shared <gameEngine::modelLoader>  ( *new gameEngine::modelLoader("objfile/nanosuit/nanosuit.obj", glm::vec3(0.f), glm::vec3(0.f), modelShader));
@@ -51,20 +48,23 @@ void gameEngine::createEngine(GameWindow* som) {
 	std::dynamic_pointer_cast<gameEngine::Quad>(somLoad)->setSize(100.f);
 	std::shared_ptr <gameEngine::Shader> lightShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader("sceneLightVertexShader.glsl", "sceneLightFragmentShader.glsl", ""));
 	std::vector< std::shared_ptr <gameEngine::Texture>> somtex;
-	somtex.push_back(fbo->getTex(0));
-	somtex.push_back(fbo->getTex(1));
-	somtex.push_back(fbo->getTex(2));
+
+	glObj->fbo->addAttachment(3);
+
+	somtex.push_back(glObj->fbo->getTex(0));
+	somtex.push_back(glObj->fbo->getTex(1));
+	somtex.push_back(glObj->fbo->getTex(2));
 	Light* sceneLight =(new Light(somtex,lightShader,true));
-	fro->setLighting(sceneLight);
+	glObj->fro->setLighting(sceneLight);
 	sceneLight->addNewLight(glm::vec3(1.f, 1.f, -1.f), glm::vec3(0.f));
 
-	fro->addRenderObj(somLoad);
-	som->addFrameObj(fro);
-	som->addToManager(cam);
+	glObj->fro->addRenderObj(somLoad);
+	som->addFrameObj(glObj->fro);
+	som->addToManager(glObj->cam);
 	std::shared_ptr < gameEngine::Shader> finShader = std::make_shared < gameEngine::Shader> (*new gameEngine::Shader("finalVertexShader.glsl", "finalFragmentShader.glsl", ""));
 	std::shared_ptr<gameEngine::Texture> tex = std::make_shared<gameEngine::Texture>(*new gameEngine::Texture("floor.png", GL_TEXTURE_2D));
 	std::dynamic_pointer_cast<gameEngine::Quad>(somLoad)->addTexture(tex);
-	fro->initializeAttachments(1);
-	som->addTex(fro->result[0]);
+	glObj->fro->initializeAttachments(1);
+	som->addTex(glObj->fro->result[0]);
 	som->setFinalShader(finShader);
 }

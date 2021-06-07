@@ -12,6 +12,7 @@
 void framebuffer_resize_callback(GLFWwindow* window, int width, int height);
 
 namespace gameEngine{
+
 	class FUN_API GameWindow {
 	protected:
 		GLFWwindow* window;
@@ -66,7 +67,7 @@ namespace gameEngine{
 			Camera* tempCam = new Camera(glm::vec3(0.f, 0.f, 1.f));
 			winCam = std::make_shared<Camera>(*tempCam);
 
-			somLay = new Layer(window);
+			somLay = new Layer(this);
 
 			/*IMGUI_CHECKVERSION();
 			ImGui::CreateContext();
