@@ -136,9 +136,9 @@ namespace gameEngine {
 			shady->setUniformMatrix4fv("modelMatrix", GL_FALSE, modelMatrix);
 		}
 		void updateProjMatrix(GLFWwindow* window) {
-			int framebufferwidth;
-			int framebufferheight;
-			glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
+			int framebufferwidth = 800;
+			int framebufferheight = 800;
+			
 			glm::mat4 projMatrix(1.f);
 			float nearPlane = 0.1f;
 			float farPlane = 100.f;

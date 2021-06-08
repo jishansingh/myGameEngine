@@ -6,13 +6,10 @@
 extern void gameEngine::createEngine(GameWindow* som);
 
 
-
-
-
 int main(int argc, char* argv[]) {
 	
 	gameEngine::pingPongFBO::initHorizon();
-	gameEngine::GameWindow* som = new gameEngine::GameWindow("mywindow");
+	gameEngine::GameWindow* som = new gameEngine::GameWindow("mywindow",800,800);
 	gameEngine::CommonUsed::initCamera();
 
 	gameEngine::createEngine(som);

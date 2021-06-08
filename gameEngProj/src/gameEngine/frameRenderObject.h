@@ -38,6 +38,9 @@ namespace gameEngine {
 		inline void setCamera(std::shared_ptr <Camera> cam) {
 			winCam = cam;
 		}
+		inline void setRenderObject(std::vector<std::shared_ptr<ObjectRender>> somObj) {
+			renderObj = somObj;
+		}
 		inline void setLighting(LightBaseClass* lig) {
 			sceneLight = lig;
 		}
@@ -70,12 +73,15 @@ namespace gameEngine {
 		}
 
 		virtual void effectApply(GLFWwindow* window){}
+
+		void lightCalc(GLFWwindow* window) {
+			if (sceneLight) {
+				((LightBaseClass*)sceneLight)->render(window, result[0], winCam);
+				//((LightBaseClass*)sceneLight)->Draw(window, fbo->depthTex, result[0],winCam);
+			}
+		}
+
 		void render(GLFWwindow* window) {
-			fbo->bind();
-			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-			glEnable(GL_DEPTH_TEST);
-			glViewport(0, 0, 1024, 1024);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			for (int i = 0; i < renderObj.size(); i++) {
 				//win->updateProjMatrix(renderObj[i]->getShader());
 				//fbo->textures[0]->bind();
@@ -86,12 +92,6 @@ namespace gameEngine {
 				setUniform(renderObj[i]->getShader());
 				renderObj[i]->Draw();
 			}
-			fbo->unBind();
-			if (sceneLight) {
-				((LightBaseClass*)sceneLight)->render(window, result[0], winCam);
-				//((LightBaseClass*)sceneLight)->Draw(window, fbo->depthTex, result[0],winCam);
-			}
-			effectApply(window);
 
 		}
 		std::shared_ptr <framebufferObject> getFBO() {
