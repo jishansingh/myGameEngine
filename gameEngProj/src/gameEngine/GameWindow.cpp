@@ -166,10 +166,22 @@ void gameEngine::GameWindow::render() {
 		glViewport(0, 0, framebufferwidth, framebufferheight);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		
+		glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
+		glViewport(0, 0, framebufferwidth, framebufferheight);
+
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glDisable(GL_DEPTH_TEST);
+		//glClear(GL_COLOR_BUFFER_BIT);
+
+		/*glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);*/
+
 		glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
 		glViewport(0, 0, framebufferwidth, framebufferheight);
 		finalShader->Use();
+
 		for (int i = 0; i < finTex.size(); i++) {
 			finTex[i]->bind();
 			std::string top = "texture" + std::to_string(i);
@@ -179,9 +191,12 @@ void gameEngine::GameWindow::render() {
 		winCam->sendToShader(finalShader);
 
 		window2D->updateModelMatrix();
-
 		window2D->Draw();
 		finalShader->unUse();
+
+		
+
+
 
 
 		// Rendering

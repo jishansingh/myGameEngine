@@ -138,7 +138,7 @@ namespace gameEngine {
 		void updateProjMatrix(GLFWwindow* window) {
 			int framebufferwidth = 800;
 			int framebufferheight = 800;
-			
+			//glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
 			glm::mat4 projMatrix(1.f);
 			float nearPlane = 0.1f;
 			float farPlane = 100.f;

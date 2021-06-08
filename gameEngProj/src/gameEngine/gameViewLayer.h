@@ -37,8 +37,9 @@ namespace gameEngine {
 			std::shared_ptr < gameEngine::Shader> finShader = std::make_shared < gameEngine::Shader>(*new gameEngine::Shader("finalVertexShader.glsl", "finalFragmentShader.glsl", ""));
 			std::shared_ptr<gameEngine::Texture> tex = std::make_shared<gameEngine::Texture>(*new gameEngine::Texture("floor.png", GL_TEXTURE_2D));
 			std::dynamic_pointer_cast<gameEngine::Quad>(somLoad)->addTexture(tex);
-			window->addTex(fro->result[0]);
+			window->addTex(fbo->textures[0]);
 			window->setFinalShader(finShader);
+			fbo->check();
 
 		}
 		virtual void onUpdate() {
