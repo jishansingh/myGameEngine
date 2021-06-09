@@ -1,9 +1,12 @@
 #pragma once
 #include"GameWindow.h"
 #include"Texture.h"
-#include"Effects/Blur.h"
-#include"Effects/Bloom.h"
+#include"Effects/bloom.h"
 extern void gameEngine::createEngine(GameWindow* som);
+std::shared_ptr<gameEngine::Camera> gameEngine::CommonUsed::quadCam;
+std::shared_ptr<gameEngine::Quad> gameEngine::CommonUsed::somQuad;
+std::shared_ptr<gameEngine::Cube> gameEngine::CommonUsed::somCube;
+
 
 
 int main(int argc, char* argv[]) {

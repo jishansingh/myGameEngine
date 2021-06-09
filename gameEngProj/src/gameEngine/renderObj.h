@@ -2,6 +2,7 @@
 #include"Shader.h"
 #include"Texture.h"
 #include"Model.h"
+#include"GameObject.h"
 
 namespace gameEngine {
 	class FUN_API ObjectRender :public GameObj {

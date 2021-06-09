@@ -1,18 +1,24 @@
 #include"Layer.h"
-#include"framebufferObject.h"
-#include"Camera.h"
 #include"frameRenderObject.h"
-#include"GameWindow.h"
+
+static inline void imguiSize();
+
 namespace gameEngine {
+	
 	class FUN_API GameViewLayer:public Layer {
 	public:
 		std::shared_ptr<framebufferObject> fbo;
 		std::shared_ptr <frameRenderObject> fro;
 		std::shared_ptr <Camera> cam;
+		static float size;
 		GameViewLayer(GameWindow* win): Layer(win) {
 			fbo = std::make_shared<framebufferObject>(*new framebufferObject(false));
 			cam = std::make_shared<Camera>(*new Camera(glm::vec3(0.f, 0.f, 1.f)));
 			fro = std::make_shared <frameRenderObject>(*new frameRenderObject(fbo, cam));
+			win->somLay->addToMenu(&imguiSize);
+		}
+		static void setSize(float somSize) {
+			size = somSize;
 		}
 
 		virtual void onAttach() {
@@ -21,7 +27,7 @@ namespace gameEngine {
 
 			std::shared_ptr <gameEngine::Shader> quadShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader("quadVertexShader.glsl", "quadFragmentShader.glsl", ""));
 			std::shared_ptr <gameEngine::ObjectRender> somLoad = std::make_shared <gameEngine::Quad>(*new gameEngine::Quad(glm::vec3(0.f, -0.5f, 0.f), glm::vec3(90.f, 0.f, 0.f), 0.5f, 0.5f, quadShader));
-			std::dynamic_pointer_cast<gameEngine::Quad>(somLoad)->setSize(100.f);
+			std::dynamic_pointer_cast<gameEngine::Quad>(somLoad)->setSize(size);
 			std::shared_ptr <gameEngine::Shader> lightShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader("sceneLightVertexShader.glsl", "sceneLightFragmentShader.glsl", ""));
 			std::vector< std::shared_ptr <gameEngine::Texture>> somtex;
 
@@ -43,7 +49,8 @@ namespace gameEngine {
 
 		}
 		virtual void onUpdate() {
-
+			std::dynamic_pointer_cast<gameEngine::Quad>(fro->renderObj[0])->setSize(size);
+			std::cout << size << std::endl;
 		}
 
 		virtual void renderLayer() {
@@ -65,4 +72,14 @@ namespace gameEngine {
 		}
 
 	};
+}
+
+float gameEngine::GameViewLayer::size = 10.f;
+
+
+static inline void imguiSize() {
+	float som = gameEngine::GameViewLayer::size;
+	ImGui::SliderFloat("float", &som, 0.0f, 100.0f);
+	gameEngine::GameViewLayer::setSize(som);
+	std::cout << som << std::endl;
 }

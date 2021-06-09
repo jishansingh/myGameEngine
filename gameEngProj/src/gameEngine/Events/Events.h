@@ -1,5 +1,5 @@
 #pragma once
-#include<MainHeader.h>
+
 #include"gameEngine/GameObject.h"
 
 namespace gameEngine {

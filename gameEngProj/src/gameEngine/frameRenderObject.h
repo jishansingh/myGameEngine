@@ -1,27 +1,26 @@
 #pragma once
 
 #include"Core.h"
-#include"GameWindow.h"
 #include"framebufferObject.h"
-#include"Events/EventManager.h"
-#include"Camera.h"
-#include"renderObj.h"
 #include"Effects/postProcessingEff.h"
+#include"Light.h"
+
+
+
 
 namespace gameEngine {
-	class LightBaseClass :public CommonUsed, public GameObj {
+	/*class LightBaseClass :public CommonUsed, public GameObj {
 	public:
 		virtual void render(GLFWwindow* window, std::shared_ptr <Texture> resultTex, std::shared_ptr <Camera> sceneCam){}
 		virtual void Draw(GLFWwindow* window, std::shared_ptr<Texture>depthTex, std::shared_ptr <Texture> resultTex, std::shared_ptr <Camera> sceneCam) {}
 		virtual ~LightBaseClass(){}
 		virtual void onkeyPress(int keyNum) {
 		}
-	};
-	class FUN_API EffectObj;
+	};*/
 	class FUN_API frameRenderObject :public sharedObj {
 		std::shared_ptr<framebufferObject> fbo;
 		std::shared_ptr <Camera> winCam;
-		LightBaseClass* sceneLight = NULL;
+		Light* sceneLight = NULL;
 	protected:
 		std::unordered_map<std::string,std::shared_ptr <EffectObj> > postEff;
 	public:
@@ -41,7 +40,7 @@ namespace gameEngine {
 		inline void setRenderObject(std::vector<std::shared_ptr<ObjectRender>> somObj) {
 			renderObj = somObj;
 		}
-		inline void setLighting(LightBaseClass* lig) {
+		inline void setLighting(Light* lig) {
 			sceneLight = lig;
 		}
 		inline void addRenderObj(std::shared_ptr <ObjectRender> somObj) {
@@ -76,7 +75,7 @@ namespace gameEngine {
 
 		void lightCalc(GLFWwindow* window) {
 			if (sceneLight) {
-				((LightBaseClass*)sceneLight)->render(window, result[0], winCam);
+				((Light*)sceneLight)->render(window, result[0], winCam);
 				//((LightBaseClass*)sceneLight)->Draw(window, fbo->depthTex, result[0],winCam);
 			}
 		}

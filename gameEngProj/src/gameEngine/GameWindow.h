@@ -1,10 +1,7 @@
 #pragma once
 #include"libs.h"
-#include"Events/EventManager.h"
-#include"Camera.h"
-#include"renderObj.h"
 #include"frameRenderObject.h"
-#include"Light.h"
+#include"Events/EventManager.h"
 #include"Layer.h"
 
 

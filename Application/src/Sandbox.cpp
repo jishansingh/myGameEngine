@@ -1,4 +1,7 @@
+#pragma once
 #include"MainHeader.h"
+
+
 
 //class Sandbox :public gameEngine::GameWindow {
 //public:
@@ -19,17 +22,17 @@
 //
 //};
 
-class mySand :public gameEngine::frameRenderObject {
-public:
-	mySand(std::shared_ptr<gameEngine::framebufferObject> fbo, std::shared_ptr <gameEngine::Camera> cam)
-		:frameRenderObject(fbo,cam)
-	{
-	}
-	void effectApply(GLFWwindow* window) {
-		//result[0] = getFBO()->getTex(0);
-		//postEff["bloom"]->render(window, getFBO()->getTex(0), result[0]);
-	}
-};
+//class mySand :public gameEngine::frameRenderObject {
+//public:
+//	mySand(std::shared_ptr<gameEngine::framebufferObject> fbo, std::shared_ptr <gameEngine::Camera> cam)
+//		:frameRenderObject(fbo,cam)
+//	{
+//	}
+//	void effectApply(GLFWwindow* window) {
+//		//result[0] = getFBO()->getTex(0);
+//		//postEff["bloom"]->render(window, getFBO()->getTex(0), result[0]);
+//	}
+//};
 
 void gameEngine::createEngine(GameWindow* som) {
 	std::shared_ptr<gameEngine::GameViewLayer> glObj = std::make_shared<gameEngine::GameViewLayer>(*new gameEngine::GameViewLayer(som));

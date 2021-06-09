@@ -1,7 +1,7 @@
 #pragma once
 #include"Layer.h"
 #include"GameWindow.h"
-
+#include"gameViewLayer.h"
 
 gameEngine::Layer::Layer(GameWindow* win) {
 	window = win;
@@ -72,9 +72,10 @@ void gameEngine::ImGUILayer::onUpdate() {
 
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	ImGui::Begin("debug menu");
-	for (auto som : menus) {
+	/*for (auto som : menus) {
 		som();
-	}
+	}*/
+	imguiSize();
 	ImGui::End();
 
 	{

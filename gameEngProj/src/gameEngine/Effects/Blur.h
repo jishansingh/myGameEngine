@@ -1,6 +1,7 @@
 #pragma once
 
 #include"postProcessingEff.h"
+#include"gameEngine/frameRenderObject.h"
 #include"gameEngine/ImpOperation.h"
 
 namespace gameEngine {
@@ -57,6 +58,5 @@ namespace gameEngine {
 		}
 	};
 }
-
 
 bool gameEngine::pingPongFBO::horizontal;

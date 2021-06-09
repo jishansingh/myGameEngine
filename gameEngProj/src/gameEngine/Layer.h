@@ -24,13 +24,13 @@ namespace gameEngine {
 	
 	class FUN_API ImGUILayer :public Layer{
 	public:
-		std::vector<ImGUIFunc> menus;
+		std::vector<void (*)()> menus;
 		ImGUILayer(GameWindow* win);
 		void onAttach();
 		void onUpdate();
 		void renderLayer();
 		void endLayer();
-		inline void addToMenu(ImGUIFunc func) {
+		inline void addToMenu(void (*func)() ) {
 			menus.push_back(func);
 		}
 	};
