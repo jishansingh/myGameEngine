@@ -5,12 +5,10 @@
 
 typedef void (*ImGUIFunc)();
 namespace gameEngine {
-
-	class GameWindow;
+	class GameViewLayer;
 	class FUN_API Layer {
 	public:
-		GameWindow* window;
-		Layer(GameWindow* win);
+		Layer();
 		virtual void onAttach() {
 		}
 		virtual void onUpdate() {
@@ -21,17 +19,31 @@ namespace gameEngine {
 		}
 	};
 	
-	
+	class IMGUIJob {
+	public:
+		IMGUIJob(void (*som_func)(void*),void* som) {
+			func = som_func;
+			parameter = som;
+		}
+		void (*func)(void*);
+		void* parameter;
+	};
+
 	class FUN_API ImGUILayer :public Layer{
 	public:
-		std::vector<void (*)()> menus;
-		ImGUILayer(GameWindow* win);
+		std::vector<IMGUIJob*> menus;
+		ImGUILayer();
 		void onAttach();
 		void onUpdate();
 		void renderLayer();
 		void endLayer();
-		inline void addToMenu(void (*func)() ) {
-			menus.push_back(func);
+		inline void addToMenu(IMGUIJob* somJob) {
+			menus.push_back(somJob);
+		}
+		~ImGUILayer() {
+			for (int i = 0; i < menus.size(); i++) {
+				delete menus[i];
+			}
 		}
 	};
 }

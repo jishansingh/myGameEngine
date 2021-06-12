@@ -24,7 +24,7 @@ gameEngine::Light::Light(std::vector<std::shared_ptr<Texture>>texBuffer, std::sh
 		drawFRO->addRenderObj(lightDraw);
 	}
 }
-void gameEngine::Light::render(GLFWwindow* window, std::shared_ptr <Texture> resultTex, std::shared_ptr <Camera> sceneCam) {
+void gameEngine::Light::render(std::shared_ptr <Texture> resultTex, std::shared_ptr <Camera> sceneCam) {
 	CommonUsed::somQuad->setShader(shady);
 	fro->getFBO()->addTexture(resultTex, 0);
 	for (int i = 0; i < gbuffer.size(); i++) {
@@ -38,7 +38,7 @@ void gameEngine::Light::render(GLFWwindow* window, std::shared_ptr <Texture> res
 	}
 	sceneCam->sendCamPos(shady, "camPos");
 	glDisable(GL_DEPTH_TEST);
-	fro->render(window);
+	fro->render();
 }
 void gameEngine::Light::addNewLight(glm::vec3 pos, glm::vec3 col) {
 	lightArr.push_back(std::shared_ptr<LightObj>(new LightObj(pos, col)));

@@ -26,7 +26,7 @@ namespace gameEngine {
 			fbo->addTexture(brightTex, 0);
 			somQuad->replaceTex(0, tex);
 
-			fro->render(window);
+			//fro->render(window);
 
 			blurEffect->render(window, brightTex, brightTex);
 
@@ -34,7 +34,7 @@ namespace gameEngine {
 			somQuad->replaceTex(0,tex);
 			somQuad->replaceTex(1, brightTex);
 			fbo->addTexture(resultTex, 0);
-			fro->render(window);
+			//fro->render(window);
 
 		}
 

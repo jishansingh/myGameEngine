@@ -1,13 +1,11 @@
 #pragma once
 #include"Layer.h"
-#include"GameWindow.h"
 #include"gameViewLayer.h"
 
-gameEngine::Layer::Layer(GameWindow* win) {
-	window = win;
+gameEngine::Layer::Layer() {
 }
 
-gameEngine::ImGUILayer::ImGUILayer(GameWindow* win) : Layer(win) {  }
+gameEngine::ImGUILayer::ImGUILayer() {  }
 
 void gameEngine::ImGUILayer::onAttach() {
 	IMGUI_CHECKVERSION();
@@ -43,7 +41,7 @@ void gameEngine::ImGUILayer::onAttach() {
 	ImGui::StyleColorsDark();
 	//manager->addNewObj(winCam);
 
-	ImGui_ImplGlfw_InitForOpenGL(window->getWindow(), true);
+	ImGui_ImplGlfw_InitForOpenGL(gameEngine::getGLFWWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 }
 void gameEngine::ImGUILayer::onUpdate() {
@@ -55,7 +53,7 @@ void gameEngine::ImGUILayer::onUpdate() {
 	ImGuiIO& io = ImGui::GetIO();
 	int framebufferwidth;
 	int framebufferheight;
-	glfwGetFramebufferSize(window->getWindow(), &framebufferwidth, &framebufferheight);
+	glfwGetFramebufferSize(gameEngine::getGLFWWindow(), &framebufferwidth, &framebufferheight);
 	io.DisplaySize = ImVec2(framebufferwidth, framebufferheight);
 	ImGui::SetNextWindowSize(io.DisplaySize);
 	float time = glfwGetTime();
@@ -70,14 +68,14 @@ void gameEngine::ImGUILayer::onUpdate() {
 	if (show_demo_window)
 		ImGui::ShowDemoWindow(&show_demo_window);
 
+
 	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 	ImGui::Begin("debug menu");
-	/*for (auto som : menus) {
-		som();
-	}*/
-	imguiSize();
+	for (auto som : menus) {
+		(som->func)(som->parameter);
+	}
+	//imguiSize();
 	ImGui::End();
-
 	{
 		static float f = 0.0f;
 		static int counter = 0;

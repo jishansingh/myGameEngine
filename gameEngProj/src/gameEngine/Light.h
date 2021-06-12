@@ -2,9 +2,9 @@
 
 #include"libs.h"
 #include"Core.h"
-#include"Camera.h"
-#include"Shader.h"
-#include"renderObj.h"
+#include"GameWindow.h"
+#include"Effects/postProcessingEff.h"
+
 namespace gameEngine {
 
 	class frameRenderObject;
@@ -29,7 +29,7 @@ namespace gameEngine {
 		bool drawLight = false;
 	public:
 		Light(std::vector<std::shared_ptr<Texture>>texBuffer, std::shared_ptr<Shader> lightShader, const bool draw = false);
-		void render(GLFWwindow* window, std::shared_ptr <Texture> resultTex, std::shared_ptr <Camera> sceneCam);
+		void render(std::shared_ptr <Texture> resultTex, std::shared_ptr <Camera> sceneCam);
 		void addNewLight(glm::vec3 pos, glm::vec3 col);
 		void update(int index);
 		void Draw(GLFWwindow* window, std::shared_ptr<Texture>depthTex, std::shared_ptr <Texture> resultTex, std::shared_ptr <Camera> sceneCam);

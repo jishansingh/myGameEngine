@@ -1,7 +1,8 @@
 #pragma once
 #include"GameWindow.h"
 
-
+gameEngine::GameWindow* gameEngine::GameWindow::gameWin = NULL;
+//export gameEngine::GameWindow* gameEngine::GameWindow::gameWin;
 
 void framebuffer_resize_callback(GLFWwindow* window, int width, int height);
 
@@ -12,17 +13,29 @@ void gameEngine::GameWindow::initWindow() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glMinorVer);
 	glfwWindowHint(GLFW_RESIZABLE, true);
 }
+
 void gameEngine::GameWindow::createWindow(const char* winName, int WINDOW_WIDTH, int WINDOW_HEIGHT) {
 	window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, winName, NULL, NULL);
 	if (window == nullptr) {
-		std::cout << "no";
+		std::cout << "error in creating window";
 		glfwTerminate();
 	}
 	framebufferheight = WINDOW_WIDTH;
 	framebufferwidth = WINDOW_HEIGHT;
 }
 
-gameEngine::GameWindow::GameWindow(const char* winName, const int WINDOW_WIDTH = 800, const int WINDOW_HEIGHT = 800) {
+//gameEngine::GameWindow* initGameWindow(const char* winName, const int WINDOW_WIDTH, const int WINDOW_HEIGHT) {
+//	static gameEngine::GameWindow* som = NULL;
+//	if (som == NULL) {
+//		som = new gameEngine::GameWindow(winName, WINDOW_WIDTH, WINDOW_HEIGHT);
+//	}
+//
+//	return som;
+//}
+
+
+
+gameEngine::GameWindow::GameWindow(const char* winName, const int WINDOW_WIDTH, const int WINDOW_HEIGHT) {
 	initWindow();
 	createWindow(winName, WINDOW_WIDTH, WINDOW_HEIGHT);
 	glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
@@ -35,6 +48,37 @@ gameEngine::GameWindow::GameWindow(const char* winName, const int WINDOW_WIDTH =
 		glfwTerminate();
 	}
 
+	
+}
+gameEngine::GameWindow::~GameWindow() {
+	delete somLay;
+	delete manager;
+	glfwTerminate();
+}
+void gameEngine::GameWindow::updateProjMatrix(Shader* shady) {
+	glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
+	glm::mat4 projMatrix(1.f);
+	float nearPlane = 0.1f;
+	float farPlane = 100.f;
+	float fov = 45.f;
+	projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
+	shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
+}
+
+gameEngine::GameWindow* gameEngine::initGameWindow(const char* winName, const int WINDOW_WIDTH, const int WINDOW_HEIGHT) {
+	if (gameEngine::GameWindow::gameWin == NULL) {
+		gameEngine::GameWindow::gameWin = new gameEngine::GameWindow(winName, WINDOW_WIDTH, WINDOW_HEIGHT);
+		gameEngine::GameWindow::gameWin->initWindowLayer();
+	}
+
+	return gameEngine::GameWindow::gameWin;
+}
+
+gameEngine::ImGUILayer* gameEngine::getIMGUILayer() {
+	return initGameWindow()->somLay;
+}
+
+void gameEngine::GameWindow::initWindowLayer() {
 	//create Camera
 	manager = new EventManager();
 
@@ -42,7 +86,7 @@ gameEngine::GameWindow::GameWindow(const char* winName, const int WINDOW_WIDTH =
 	Camera* tempCam = new Camera(glm::vec3(0.f, 0.f, 1.f));
 	winCam = std::make_shared<Camera>(*tempCam);
 
-	somLay = new ImGUILayer(this);
+	somLay = new ImGUILayer();
 
 	/*IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -80,35 +124,28 @@ gameEngine::GameWindow::GameWindow(const char* winName, const int WINDOW_WIDTH =
 	//ImGui_ImplGlfw_InitForOpenGL(window, true);
 	//ImGui_ImplOpenGL3_Init("#version 440");
 	somLay->onAttach();
+}
 
+
+
+inline void gameEngine::addToManager(std::shared_ptr <GameObj> somObj) {
+	initGameWindow()->manager->addNewObj(somObj);
 }
-gameEngine::GameWindow::~GameWindow() {
-	delete somLay;
-	delete manager;
-	glfwTerminate();
+void gameEngine::addTex(std::shared_ptr <Texture> po) {
+	initGameWindow()->finTex.push_back(po);
 }
-void gameEngine::GameWindow::updateProjMatrix(Shader* shady) {
-	glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
-	glm::mat4 projMatrix(1.f);
-	float nearPlane = 0.1f;
-	float farPlane = 100.f;
-	float fov = 45.f;
-	projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
-	shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
+void gameEngine::setFinalShader(std::shared_ptr <Shader> shad) {
+	initGameWindow()->finalShader = shad;
+	Quad* tempQuad = new Quad(glm::vec3(0.f), glm::vec3(0.f), 0.5f, 0.5f, shad, 0.f);
+	initGameWindow()->window2D = std::make_shared<Quad>(*tempQuad);
 }
-inline void gameEngine::GameWindow::addFrameObj(std::shared_ptr <frameRenderObject> iop) {
-	frameObj.push_back(iop);
+
+inline gameEngine::GameWindow* gameEngine::getWindow() {
+	return gameEngine::initGameWindow();
 }
-inline void gameEngine::GameWindow::addToManager(std::shared_ptr <GameObj> somObj) {
-	manager->addNewObj(somObj);
-}
-void gameEngine::GameWindow::addTex(std::shared_ptr <Texture> po) {
-	finTex.push_back(po);
-}
-void gameEngine::GameWindow::setFinalShader(std::shared_ptr <Shader> shad) {
-	this->finalShader = shad;
-	Quad* tempQuad = new Quad(glm::vec3(0.f), glm::vec3(0.f), 0.5f, 0.5f, finalShader, 0.f);
-	window2D = std::make_shared<Quad>(*tempQuad);
+
+inline GLFWwindow* gameEngine::getGLFWWindow() {
+	return gameEngine::initGameWindow()->window;
 }
 
 void gameEngine::GameWindow::update() {
@@ -118,8 +155,6 @@ void gameEngine::GameWindow::update() {
 	}
 	somLay->onUpdate();
 }
-
-
 
 
 void gameEngine::GameWindow::render() {
@@ -222,6 +257,30 @@ void gameEngine::GameWindow::render() {
 	}
 	somLay->endLayer();
 }
+
+void gameEngine::renderWindow() {
+	initGameWindow()->render();
+}
+
+void gameEngine::updateWindow() {
+	//this will update all layers
+	initGameWindow()->update();
+}
+
 void framebuffer_resize_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
+	gameEngine::getWindow()->setFrameSize(width, height);
+}
+
+void gameEngine::addLayer(std::shared_ptr <gameEngine::Layer> som) {
+	gameEngine::initGameWindow()->layerArr.push_back(som);
+}
+void gameEngine::getFrameSize(int& fwidth, int& fheight) {
+	glfwGetFramebufferSize(gameEngine::initGameWindow()->window, &fwidth, &fheight);
+	fwidth = gameEngine::initGameWindow()->framebufferwidth;
+	fheight = gameEngine::initGameWindow()->framebufferheight;
+}
+
+void gameEngine::deleteWindow() {
+	delete gameEngine::initGameWindow();
 }

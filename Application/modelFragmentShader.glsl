@@ -19,9 +19,9 @@ void main(){
 	
 	fs_color = texture(material0.diffuseTex,fs_texcoord);
 	//fs_color += texture(material0.specularTex,fs_texcoord)*0.6;
-	/*if(material0.specularTex){
-		fs_color = texture(material0.specularTex,fs_texcoord);
-	}*/
+	if(material0.specularTex){
+		fs_color += texture(material0.specularTex,fs_texcoord)*0.6;
+	}
 	//fs_color = vec4(1.f,0.f,0.f,1.f);
 	fs_position = cb_pos;
 	fs_normal = vec4(cb_normal,0.f);

@@ -2,9 +2,7 @@
 
 #include"Core.h"
 #include"framebufferObject.h"
-#include"Effects/postProcessingEff.h"
 #include"Light.h"
-
 
 
 
@@ -68,26 +66,39 @@ namespace gameEngine {
 		virtual void setUniform(std::shared_ptr <Shader> shady) {}
 		virtual void preRender() {}
 		void addEffect(std::string temp,std::shared_ptr<EffectObj> somObj) {
-			postEff[temp] = somObj;
+			//postEff[temp] = somObj;
 		}
 
 		virtual void effectApply(GLFWwindow* window){}
 
-		void lightCalc(GLFWwindow* window) {
+		void lightCalc() {
 			if (sceneLight) {
-				((Light*)sceneLight)->render(window, result[0], winCam);
+				((Light*)sceneLight)->render(result[0], winCam);
 				//((LightBaseClass*)sceneLight)->Draw(window, fbo->depthTex, result[0],winCam);
 			}
 		}
+		void updateProjectionMat(std::shared_ptr <Shader> shady) {
+			int framebufferwidth = 800;
+			int framebufferheight = 800;
+			fbo->bind();
+			gameEngine::getFrameSize(framebufferwidth, framebufferheight);
 
-		void render(GLFWwindow* window) {
+			glm::mat4 projMatrix(1.f);
+			float nearPlane = 0.1f;
+			float farPlane = 100.f;
+			float fov = 53.f;
+			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
+			shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
+		}
+
+		void render() {
 			for (int i = 0; i < renderObj.size(); i++) {
 				//win->updateProjMatrix(renderObj[i]->getShader());
 				//fbo->textures[0]->bind();
 				renderObj[i]->getShader()->Use();
 				renderObj[i]->updateModelMatrix();
 				winCam->sendToShader(renderObj[i]->getShader());
-				renderObj[i]->updateProjMatrix(window);
+				updateProjectionMat(renderObj[i]->getShader());
 				setUniform(renderObj[i]->getShader());
 				renderObj[i]->Draw();
 			}

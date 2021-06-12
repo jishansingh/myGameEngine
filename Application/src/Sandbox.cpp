@@ -34,10 +34,10 @@
 //	}
 //};
 
-void gameEngine::createEngine(GameWindow* som) {
-	std::shared_ptr<gameEngine::GameViewLayer> glObj = std::make_shared<gameEngine::GameViewLayer>(*new gameEngine::GameViewLayer(som));
+void gameEngine::createEngine() {
+	std::shared_ptr<gameEngine::GameViewLayer> glObj = std::make_shared<gameEngine::GameViewLayer>(*new gameEngine::GameViewLayer());
 
-	som->addLayer(glObj);
+	gameEngine::addLayer(glObj);
 
 	//std::shared_ptr <gameEngine::Shader> modelShader    = std::make_shared <gameEngine::Shader>   ( *new gameEngine::Shader("modelVertexShader.glsl", "modelFragmentShader.glsl", ""));
 	

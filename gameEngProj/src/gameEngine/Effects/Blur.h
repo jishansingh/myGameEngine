@@ -47,7 +47,7 @@ namespace gameEngine {
 					if (k == noOfIteration - 1 && i == 1) {
 						pingpongfro[i]->getFBO()->addTexture(resultTex, 0);
 					}
-					pingpongfro[i]->render(window);
+					//pingpongfro[i]->render(window);
 					(std::dynamic_pointer_cast<Quad>(somQuad))->replaceTex(0, pingpongfro[i]->getFBO()->getTex(0));
 				}
 			}
