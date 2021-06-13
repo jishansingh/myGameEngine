@@ -1,5 +1,6 @@
 #include"Layer.h"
 #include"frameRenderObject.h"
+#include"CustomShader.h"
 
 static void imguiSize(void* som);
 
@@ -29,11 +30,16 @@ namespace gameEngine {
 			std::shared_ptr <gameEngine::ObjectRender> somLoad = std::make_shared <gameEngine::Quad>(*new gameEngine::Quad(glm::vec3(0.f, -0.5f, 0.f), glm::vec3(90.f, 0.f, 0.f), 0.5f, 0.5f, quadShader));
 			std::dynamic_pointer_cast<gameEngine::Quad>(somLoad)->setSize(size);
 			//gameEngine::getIMGUILayer()->addToMenu(new IMGUIJob{ &imguiSize,(void*)this });
-			std::shared_ptr <gameEngine::Shader> modelShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader("modelVertexShader.glsl", "modelFragmentShader.glsl", ""));
 
-			std::shared_ptr <gameEngine::ObjectRender> somLoad1 = std::make_shared <gameEngine::modelLoader>(*new gameEngine::modelLoader("objfile/nanosuit/nanosuit.obj", glm::vec3(0.f), glm::vec3(0.f), modelShader));
+			ShaderInit sompo;
+			std::string vertShader = sompo.getVertShader(ShaderInit::NORM_VERTIN | ShaderInit::TEX_COORDIN);
+			std::string fragShader = sompo.getFragShader(ShaderInit::NORM_VERT | ShaderInit::TEX_COORD | ShaderInit::ALBEDO_TEX | ShaderInit::SPECULAR_TEX, ShaderInit::ALBEDO_COLOR | ShaderInit::NORMAL_TEX);
+			std::cout << vertShader << std::endl;
+			std::cout << fragShader << std::endl;
+			std::shared_ptr <gameEngine::Shader> modelShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader(vertShader,fragShader , ""));
 
-
+			std::shared_ptr <gameEngine::ObjectRender> somLoad1 = std::make_shared <gameEngine::modelLoader>(*new gameEngine::modelLoader("objfile/spaceship.obj", glm::vec3(0.f), glm::vec3(0.f), modelShader));
+			std::dynamic_pointer_cast<gameEngine::modelLoader>(somLoad1)->setSize(0.1f);
 			std::shared_ptr <gameEngine::Shader> lightShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader("sceneLightVertexShader.glsl", "sceneLightFragmentShader.glsl", ""));
 			std::vector< std::shared_ptr <gameEngine::Texture>> somtex;
 

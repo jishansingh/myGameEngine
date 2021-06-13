@@ -66,6 +66,7 @@ namespace gameEngine {
 		std::shared_ptr <Model> model;
 		glm::vec3 position;
 		glm::vec3 rotation;
+		float size = 1.f;
 	public:
 		modelLoader(const char* path, glm::vec3 pos, glm::vec3 rot, std::shared_ptr <Shader> shaderM);
 		virtual ~modelLoader() {
@@ -76,6 +77,9 @@ namespace gameEngine {
 		inline glm::vec3 getRotation() {
 			return rotation;
 		}
+		void setSize(float inp) {
+			size = inp;
+		}
 		void updateModelMatrix();
 		void updateProjMatrix(GLFWwindow* window);
 		void Draw(const bool instanced = false, const int count = 1);
@@ -85,6 +89,7 @@ namespace gameEngine {
 		std::shared_ptr<ObjectRender> instancedObj;
 		std::vector<glm::vec3*> positions;
 		std::vector<glm::vec3*> color;
+		float size = 1.f;
 	public:
 		instancedRenderer(std::shared_ptr<ObjectRender> orgObj);
 		void updateModelMatrix();
@@ -94,6 +99,8 @@ namespace gameEngine {
 
 		inline glm::vec3 getPosition();
 		inline glm::vec3 getRotation();
+
+		
 		void addInstance(glm::vec3 pos, glm::vec3 col);
 		void updateDataIndex(int index);
 		void setPosition(std::vector<glm::vec3*> pos, std::vector<glm::vec3*> col);

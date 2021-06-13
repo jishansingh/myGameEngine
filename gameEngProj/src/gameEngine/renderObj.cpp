@@ -131,7 +131,7 @@ void gameEngine::modelLoader::updateModelMatrix() {
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
 	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
-	modelMatrix = glm::scale(modelMatrix, glm::vec3(1.f));
+	modelMatrix = glm::scale(modelMatrix, glm::vec3(size));
 	shady->setUniformMatrix4fv("modelMatrix", GL_FALSE, modelMatrix);
 }
 void gameEngine::modelLoader::updateProjMatrix(GLFWwindow* window) {
