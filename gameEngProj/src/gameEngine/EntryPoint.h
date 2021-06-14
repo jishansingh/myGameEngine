@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
 	
 	gameEngine::pingPongFBO::initHorizon();
 	gameEngine::initGameWindow("mywindow");
+	gameEngine::Model::initModelLoader("");
 	gameEngine::CommonUsed::initCamera();
 
 	gameEngine::createEngine();

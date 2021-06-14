@@ -47,8 +47,6 @@ gameEngine::GameWindow::GameWindow(const char* winName, const int WINDOW_WIDTH, 
 		std::cout << "ok";
 		glfwTerminate();
 	}
-
-	
 }
 gameEngine::GameWindow::~GameWindow() {
 	delete somLay;

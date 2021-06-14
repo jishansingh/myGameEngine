@@ -2,7 +2,23 @@
 #include"libs.h"
 #include"Mesh.h"
 namespace gameEngine {
-	class FUN_API Model :public sharedObj{
+	struct MeshDataInstance {
+		std::shared_ptr<Material> objMaterial;
+		glm::mat4* positionMat;
+		glm::mat4* scaleMat;
+		glm::mat4* rotationMat;
+	};
+
+	struct MeshInstance {
+		std::shared_ptr<Mesh> objMesh;
+		MeshDataInstance meshInsData;
+		std::shared_ptr<Shader> shady;
+		bool operator==(const MeshInstance& p) const {
+			return objMesh == p.objMesh && shady == p.shady;
+		}
+	};
+
+	class FUN_API modelLoader :public sharedObj{
 	private:
 		std::string directory;
 
@@ -21,7 +37,7 @@ namespace gameEngine {
 			return textures;
 		}
 
-		Mesh* processMesh(aiMesh* mesh, const aiScene* scene) {
+		MeshInstance processMesh(aiMesh* mesh, const aiScene* scene) {
 			std::vector<Vertex>vertices;
 			std::vector<GLuint>indexArr;
 			std::vector<Texture*>diffTex;
@@ -53,7 +69,8 @@ namespace gameEngine {
 			}
 
 			for (int i = 0; i < mesh->mNumFaces; i++) {
-				aiFace fac = mesh->mFaces[i];
+				aiFace& fac = mesh->mFaces[i];
+				assert(fac.mNumIndices == 3);
 				for (int j = 0; j < fac.mNumIndices; j++) {
 					indexArr.push_back(fac.mIndices[j]);
 				}
@@ -66,24 +83,23 @@ namespace gameEngine {
 				specTex = loadMaterialTexture(material, aiTextureType_SPECULAR, count);
 			}
 
-			Mesh* mes = new Mesh(vertices, indexArr, diffTex, specTex);
-			return mes;
-
+			std::shared_ptr<Material> mat = std::make_shared<Material>(*new Material(diffTex.size() > 0 ? diffTex[0] : NULL, specTex.size() > 0 ? specTex[0] : NULL));
+			std::shared_ptr<Mesh> mes = std::make_shared<Mesh>(*new Mesh(vertices, indexArr));
+			return { mes,mat };
 		}
 
 
-		void processNode(aiNode* node, const aiScene* scene) {
+		void processNode(aiNode* node, const aiScene* scene, std::vector<MeshInstance> &meshVec) {
 			for (int i = 0; i < node->mNumMeshes; i++) {
 				aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-				Mesh* tempMesh = processMesh(mesh, scene);
-				meshes.push_back(std::make_shared<Mesh>(*tempMesh));
+				MeshInstance tempMesh = processMesh(mesh, scene);
+				meshVec.push_back(tempMesh);
 			}
 			for (int i = 0; i < node->mNumChildren; i++) {
-				processNode(node->mChildren[i], scene);
+				processNode(node->mChildren[i], scene,meshVec);
 			}
 		}
-
-		void loadModel(std::string path) {
+		std::vector<MeshInstance> loadModel(std::string path) {
 			Assimp::Importer importer;
 			const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
@@ -92,21 +108,27 @@ namespace gameEngine {
 				return;
 			}
 			directory = path.substr(0, path.find_last_of('/'));
-
-			processNode(scene->mRootNode, scene);
+			std::vector<MeshInstance> modelMesh;
+			processNode(scene->mRootNode, scene, modelMesh);
 
 		}
+		static modelLoader* modelLoaderObj;
 	public:
-		std::vector<std::shared_ptr<Mesh>>meshes;
-		Model(const char* path) {
-			loadModel(path);
+		modelLoader(std::string path) {
+			directory = path;
 		}
-		void Draw(std::shared_ptr <Shader> shader,const bool instanced = false, const int count = 1) {
+		static void initModelLoader(std::string direcory_name) {
+			modelLoaderObj = new modelLoader(direcory_name);
+		}
+		static std::vector<MeshInstance>loadModelFromPath(std::string path) {
+			return modelLoaderObj->loadModel(path);
+		}
+		/*void Draw(std::shared_ptr <Shader> shader,const bool instanced = false, const int count = 1) {
 			for (int i = 0; i < meshes.size(); i++) {
 				meshes[i]->Draw(shader, instanced, count);
 			}
-		}
-		~Model() {
+		}*/
+		~modelLoader() {
 			
 		}
 

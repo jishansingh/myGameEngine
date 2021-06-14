@@ -2,14 +2,14 @@
 #include"libs.h"
 #include"Texture.h"
 #include"Shader.h"
-
+#include"Material.h"
 namespace gameEngine {
 	class FUN_API Mesh :public sharedObj{
 	private: 
 		std::vector<Vertex>vertices;
 		std::vector<unsigned int>indices;
-		std::vector<std::shared_ptr <Texture>>diffuseTex;
-		std::vector< std::shared_ptr <Texture>>specularTex;
+		/*std::vector<std::shared_ptr <Texture>>diffuseTex;
+		std::vector< std::shared_ptr <Texture>>specularTex;*/
 		unsigned int vbo;
 		unsigned int ibo;
 		unsigned int vao;
@@ -40,7 +40,7 @@ namespace gameEngine {
 		}
 
 	public:
-		Mesh(std::vector<Vertex>& vert, std::vector<unsigned int>& index_arr, std::vector<Texture*> diffuse_tex_mat, std::vector<Texture*> specular_tex_mat) {
+		Mesh(std::vector<Vertex>& vert, std::vector<unsigned int>& index_arr) {
 			this->vertices = vert;
 			this->indices = index_arr;
 			//this->diffuseTex = diffuse_tex_mat;
@@ -53,56 +53,17 @@ namespace gameEngine {
 				indices.push_back(index_arr[i]);
 			}
 			*/
-			for (int i = 0; i < diffuse_tex_mat.size(); i++) {
-				diffuseTex.push_back(std::make_shared<Texture>(*diffuse_tex_mat[i]));
-			}
-			for (int i = 0; i < specular_tex_mat.size(); i++) {
-				specularTex.push_back(std::make_shared<Texture>(*specular_tex_mat[i]));
-			}
 
 			initBuffers();
 		}
-		void Draw(std::shared_ptr <Shader>& shader, bool instanced, int count) {
-			shader->Use();
-
+		void bindData() {
 			glBindVertexArray(vao);
+		}
 
+		void preDraw() {
 
-			for (int i = 0; i < diffuseTex.size(); i++) {
-				//diffuseTex[i]->bind();
-				shader->Use();
-				glActiveTexture(GL_TEXTURE0 + diffuseTex[i]->getTextureUnit());
-				shader->setUniform1i(("material" + std::to_string(i) + ".diffuseTex").c_str(), diffuseTex[i]->getTextureUnit());
-				//shader->setUniform1i("diffTex", diffuseTex[i]->getTextureUnit());
-				glBindTexture(GL_TEXTURE_2D, diffuseTex[i]->getID());
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-			}
+			bindData();
 
-			for (int i = 0; i < specularTex.size(); i++) {
-				//diffuseTex[i]->bind();
-				shader->Use();
-				glActiveTexture(GL_TEXTURE0 + specularTex[i]->getTextureUnit());
-				shader->setUniform1i(("material" + std::to_string(i) + ".specularTex").c_str(), specularTex[i]->getTextureUnit());
-				glBindTexture(GL_TEXTURE_2D, specularTex[i]->getID());
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				//std::cout << glGetError() << std::endl;
-			}
-			shader->Use();
-			for (int i = 0; i < diffuseTex.size(); i++) {
-				diffuseTex[i]->bind();
-			}
-			for (int i = 0; i < specularTex.size(); i++) {
-				specularTex[i]->bind();
-			}
-
-			shader->Use();
-			glBindVertexArray(vao);
 			//glActiveTexture(GL_TEXTURE0 + diffuseTex[0].getTextureUnit());
 			//shader->setUniform1i("diffTex", diffuseTex[0].getTextureUnit());
 			//glBindTexture(GL_TEXTURE_2D, diffuseTex[0].getID());
@@ -112,14 +73,19 @@ namespace gameEngine {
 			//shader->setUniform1i(("material" + std::to_string(0) + ".specularTex").c_str(), diffuseTex[i]->getTextureUnit());
 			//diffuseTex[0].bind();
 			//glDrawElementsInstanced(GL_TRIANGLES,indices.size(), GL_UNSIGNED_INT, 0, 10000);
-			if (instanced) {
+			
+		}
+		void Draw(int count) {
+			if (count!=1) {
 				glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, count);
 			}
 			else {
 				glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 			}
-			glBindVertexArray(0);
+		}
 
+		void postDraw() {
+			glBindVertexArray(0);
 		}
 		inline unsigned int getVAO() { return vao; }
 

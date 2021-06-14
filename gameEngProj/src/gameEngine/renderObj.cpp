@@ -117,24 +117,37 @@ void gameEngine::Quad::Draw(const bool instanced, const int count) {
 }
 
 
-gameEngine::modelLoader::modelLoader(const char* path, glm::vec3 pos, glm::vec3 rot, std::shared_ptr <Shader> shaderM) :
+gameEngine::Model::Model(const char* path, glm::vec3 pos, glm::vec3 rot, std::shared_ptr <Shader> shaderM) :
 	position(pos), rotation(rot) {
 	shady = shaderM;
-	model = std::make_shared<Model>(*new Model(path));
+	meshData = modelLoader::loadModelFromPath(path);
+	for (int i = 0; i < meshData.size(); i++) {
+		meshData[i].shady = shaderM;
+		glm::mat4* modelMatrix = new glm::mat4(1.f);
+		*modelMatrix = glm::translate(*modelMatrix, position);
+		meshData[i].meshInsData.positionMat = modelMatrix;
+		modelMatrix = new glm::mat4(1.f);
+		*modelMatrix = glm::rotate(*modelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
+		*modelMatrix = glm::rotate(*modelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
+		*modelMatrix = glm::rotate(*modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
+		meshData[i].meshInsData.rotationMat = modelMatrix;
+		modelMatrix = new glm::mat4(1.f);
+		*modelMatrix = glm::scale(*modelMatrix, glm::vec3(size));
+		meshData[i].meshInsData.scaleMat = modelMatrix;
+	}
+	Renderer som;
+	som.AddMeshCall(meshData);
 }
 
-
-
-void gameEngine::modelLoader::updateModelMatrix() {
+void gameEngine::Model::updateModelMatrix() {
 	glm::mat4 modelMatrix(1.f);
 	modelMatrix = glm::translate(modelMatrix, position);
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.x), glm::vec3(1.f, 0.f, 0.f));
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0.f, 1.f, 0.f));
-	modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0.f, 0.f, 1.f));
+	
+	
 	modelMatrix = glm::scale(modelMatrix, glm::vec3(size));
 	shady->setUniformMatrix4fv("modelMatrix", GL_FALSE, modelMatrix);
 }
-void gameEngine::modelLoader::updateProjMatrix(GLFWwindow* window) {
+void gameEngine::Model::updateProjMatrix(GLFWwindow* window) {
 	int framebufferwidth = 800;
 	int framebufferheight = 800;
 	//glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
@@ -145,9 +158,7 @@ void gameEngine::modelLoader::updateProjMatrix(GLFWwindow* window) {
 	projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
 	shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 }
-void gameEngine::modelLoader::Draw(const bool instanced, const int count) {
-	model->Draw(shady, instanced, count);
-}
+
 
 gameEngine::instancedRenderer::instancedRenderer(std::shared_ptr<ObjectRender> orgObj) {
 	instancedObj = orgObj;

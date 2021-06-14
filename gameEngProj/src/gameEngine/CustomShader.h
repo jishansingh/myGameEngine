@@ -80,7 +80,16 @@ namespace gameEngine {
 				vertShaderString += "layout (location = " + std::to_string(count) + ") in vec2 vs_texcoord;\n";
 				count++;
 			}
-			vertShaderString += "uniform mat4 modelMatrix;\n";
+			if (vertState & INSTANCED) {
+				vertShaderString += "uniform mat4 positionMatrix[" + std::to_string(size) + "];\n";
+				vertShaderString += "uniform mat4 rotationMatrix[" + std::to_string(size) + "];\n";
+				vertShaderString += "uniform mat4 scaleMatrix[" + std::to_string(size) + "];\n";
+			}
+			else {
+				vertShaderString += "uniform mat4 positionMatrix[1];\n";
+				vertShaderString += "uniform mat4 rotationMatrix[1];\n";
+				vertShaderString += "uniform mat4 scaleMatrix[1];\n";
+			}
 			vertShaderString += "uniform mat4 viewMatrix;\n";
 			vertShaderString += "uniform mat4 projectionMatrix;\n";
 
@@ -99,14 +108,14 @@ namespace gameEngine {
 
 			vertShaderString += "void main(){\n";
 			if (vertState & INSTANCED) {
-				vertShaderString += "vec4 somPos = offsets[gl_InstanceID]*modelMatrix*vec4(vs_position,1.f);\n";
+				vertShaderString += "vec4 somPos = positionMatrix[gl_InstanceID]*rotationMatrix[gl_InstanceID]*scaleMatrix[gl_InstanceID]*vec4(vs_position,1.f);\n";
 			}
 			else {
-				vertShaderString += "vec4 somPos = modelMatrix*vec4(vs_position,1.f);\n";
+				vertShaderString += "vec4 somPos = positionMatrix[0]*rotationMatrix[0]*scaleMatrix[0]*vec4(vs_position,1.f);\n";
 			}
 			
 			if (vertState & NORM_VERTIN) {
-				vertShaderString += "vec3 fs_normal = vec3(modelMatrix*vec4(vs_normal,1.f));\n";
+				vertShaderString += "vec3 fs_normal = vec3(rotationMatrix[0]*vec4(vs_normal,1.f));\n";
 			}
 			if (vertState & TEX_COORDIN) {
 				vertShaderString += "vec2 fs_texcoord = vs_texcoord;\n";
@@ -163,22 +172,14 @@ namespace gameEngine {
 			else if (fragInp & NORM_CONST) {
 				fragShaderString += "uniform vec3 normal_tex;\n";
 			}
-			//roughness
-			if (fragInp & ROUGH_CONST) {
-				fragShaderString += "uniform float roughness;\n";
-			}
-			else if (fragInp & ROUGH_MAP) {
-				fragShaderString += "uniform sampler2D roughness;\n";
-			}
-			else if (fragInp & ROUGH_CONST_INST) {
-				fragShaderString += "uniform float roughness["+std::to_string(size)+"];\n";
-			}
-			else if (fragInp & ROUGH_MAP_INST) {
-				fragShaderString += "uniform sampler2D roughness[" + std::to_string(size) + "];\n";
-			}
-			else {
-				fragShaderString += "const float roughness = DEF_ROUGH;\n";
-			}
+
+			fragShaderString += "struct Material{\n";
+			fragShaderString += "   sampler2D albedoTex,\n";
+			fragShaderString += "   sampler2D specularTex,\n";
+			fragShaderString += "   sampler2D normalTex\n";
+			fragShaderString += "   };\n";
+
+			/*
 			//albedo
 			if (fragInp & ALBEDO_CONST) {
 				fragShaderString += "uniform vec4 albedo;\n";
@@ -207,11 +208,90 @@ namespace gameEngine {
 				fragShaderString += "const vec3 specCol = DEF_SPECULAR;\n";
 			}
 
+			//roughness
+			if (fragInp & ROUGH_CONST) {
+				fragShaderString += "uniform float roughness;\n";
+			}
+			else if (fragInp & ROUGH_MAP) {
+				fragShaderString += "uniform sampler2D roughness;\n";
+			}
+			else if (fragInp & ROUGH_CONST_INST) {
+				fragShaderString += "uniform float roughness["+std::to_string(size)+"];\n";
+			}
+			else if (fragInp & ROUGH_MAP_INST) {
+				fragShaderString += "uniform sampler2D roughness[" + std::to_string(size) + "];\n";
+			}
+			else {
+				fragShaderString += "const float roughness = DEF_ROUGH;\n";
+			}
+			fragShaderString += "};\n";*/
+
+
+			
+			fragShaderString += "Material materialData["+std::to_string(size)+"];\n";
 
 			//main function starts
 
 			fragShaderString += "void main(){\n";
+			if (fragInp & NORM_VERT) {
+				fragShaderString += "fso_normal = fs_normal;\n";
+			}
+			if (fragInp & NORM_COLOR_INST) {
+				fragShaderString += "fso_normal = texture(materialData[gl_InstanceID].normal_tex,fs_texcoord).rgb;\n";
+			}
+			else {
+				fragShaderString += "fso_normal = texture(materialData[0].normal_tex,fs_texcoord).rgb;\n";
+			}
+			//roughness
+			if (fragOut & ROUGHNESS_TEX) {
+				if (fragInp & ROUGH_CONST) {
+					fragShaderString += "fso_rough = vec3(materialData[0].roughness);\n";
+				}
+				else if (fragInp & ROUGH_MAP) {
+					//not enabled for now
+					fragShaderString += "fso_rough = texture(materialData[0].roughness,fs_texcoord).rgb;\n";
+				}
+				else if (fragInp & ROUGH_CONST_INST) {
+					fragShaderString += "fso_rough =  vec3(materialData[gl_InstanceID].roughness[gl_InstanceID]);\n";
+				}
+				else if (fragInp & ROUGH_MAP_INST) {
+					//not enabled for now
+					fragShaderString += "fso_rough = texture(materialData[gl_InstanceID].roughness,fs_texcoord).rgb;\n";
+				}
+			}
 
+			if (fragOut & ALBEDO_COLOR) {
+				if (fragInp & ALBEDO_CONST) {
+					//not enabled for now
+					fragShaderString += "fso_albedo = albedo;\n";
+				}
+				else if (fragInp & ALBEDO_TEX) {
+					fragShaderString += "fso_albedo = texture(materialData[0].albedoTex,fs_texcoord);\n";
+				}
+				else if (fragInp & ALBEDO_CONST_INST) {
+					//not enabled for now
+					fragShaderString += "fso_albedo = albedo[gl_InstanceID];\n";
+				}
+				else if (fragInp & ALBEDO_TEX_INST) {
+					fragShaderString += "fso_albedo = texture(materialData[gl_InstanceID].albedoTex,fs_texcoord);\n";
+				}
+			}
+
+			//specularTex
+			if (fragOut & SPECULAR_OUT) {
+				if (fragInp & SPECULAR_TEX) {
+					fragShaderString += "fso_specular = texture(materialData[0].specularTex,fs_texcoord).rgb;\n";
+				}
+				else if (fragInp & SPECULAR_TEX_INST) {
+					fragShaderString += "fso_specular = texture(materialData[gl_InstanceID].specularTex,fs_texcoord).rgb;\n";
+				}
+				else {
+					fragShaderString += "fso_specular = specCol;\n";
+				}
+			}
+
+
+			/*
 			//normal
 			if (fragInp & NORM_COLOR_INST) {
 				fragShaderString += "fso_normal = texture(normal_tex[gl_InstanceID],fs_texcoord).rgb;\n";
@@ -271,7 +351,7 @@ namespace gameEngine {
 				else {
 					fragShaderString += "fso_specular = specCol;\n";
 				}
-			}
+			}*/
 			fragShaderString += "}";
 
 			return fragShaderString;

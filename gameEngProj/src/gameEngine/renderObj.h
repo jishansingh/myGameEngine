@@ -62,14 +62,14 @@ namespace gameEngine {
 		
 	};
 
-	class FUN_API modelLoader :public ObjectRender {
-		std::shared_ptr <Model> model;
+	class FUN_API Model :public ObjectRender {
+		std::vector<MeshInstance> meshData;
 		glm::vec3 position;
 		glm::vec3 rotation;
 		float size = 1.f;
 	public:
-		modelLoader(const char* path, glm::vec3 pos, glm::vec3 rot, std::shared_ptr <Shader> shaderM);
-		virtual ~modelLoader() {
+		Model(const char* path, glm::vec3 pos, glm::vec3 rot, std::shared_ptr <Shader> shaderM);
+		virtual ~Model() {
 		}
 		inline glm::vec3 getPosition() {
 			return position;
@@ -82,7 +82,6 @@ namespace gameEngine {
 		}
 		void updateModelMatrix();
 		void updateProjMatrix(GLFWwindow* window);
-		void Draw(const bool instanced = false, const int count = 1);
 	};
 
 	class FUN_API instancedRenderer :public ObjectRender {

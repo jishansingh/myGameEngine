@@ -1,18 +1,15 @@
 #pragma once
 #include"Texture.h"
 
-GLint gameEngine::Texture::totalTexUnit = 0;
 
-gameEngine::Texture::Texture(GLenum type, GLint inFormat, GLint outFormat, GLenum storageFormat, int wid, int high) {
+gameEngine::Texture::Texture(GLenum type, GLint inFormat, GLint outFormat, GLenum storageFormat, int wid, int high, void* data) {
 	this->width = wid;
 	this->height = high;
 	this->textureType = type;
-	this->textureUnit = totalTexUnit;
-	totalTexUnit++;
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, inFormat, width, height, 0, outFormat, storageFormat, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, inFormat, width, height, 0, outFormat, storageFormat, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -22,8 +19,6 @@ gameEngine::Texture::Texture(GLenum type, GLint inFormat, GLint outFormat, GLenu
 }
 gameEngine::Texture::Texture(std::string filename, GLenum type) {
 	stbi_set_flip_vertically_on_load(true);
-	this->textureUnit = totalTexUnit;
-	totalTexUnit++;
 	this->textureType = type;
 	unsigned char* image = SOIL_load_image(filename.c_str(), &this->width, &this->height, NULL, SOIL_LOAD_RGBA);
 
@@ -62,8 +57,8 @@ void gameEngine::Texture::unbind() {
 GLuint gameEngine::Texture::getID() const {
 	return this->texture_id;
 }
-void gameEngine::Texture::bind() {
-	glActiveTexture(GL_TEXTURE0 + this->textureUnit);
+void gameEngine::Texture::bind(int textureUnit) {
+	glActiveTexture(GL_TEXTURE0 + textureUnit);
 	glBindTexture(this->textureType, this->texture_id);
 }
 void gameEngine::Texture::bindToFrambuffer(int i) {
@@ -72,5 +67,4 @@ void gameEngine::Texture::bindToFrambuffer(int i) {
 void gameEngine::Texture::bindAsDepthBuffer() {
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture_id, 0);
 }
-GLint gameEngine::Texture::getTextureUnit() { return this->textureUnit; }
 
