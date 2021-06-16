@@ -17,22 +17,22 @@ namespace gameEngine {
 			shady = std::make_shared<Shader>(*new Shader("bloomVertexShader.glsl", "bloomFragmentShader.glsl", ""));
 			fbo = std::make_shared<framebufferObject>(*new framebufferObject());
 			fro = std::make_shared<frameRenderObject>(*new frameRenderObject(fbo, quadCam));
-			fro->addRenderObj(somQuad);
-			somQuad->setShader(brightShader);
+			//fro->addRenderObj(somQuad);
+			//somQuad->setShader(brightShader);
 		}
 
 		void render(GLFWwindow* window, std::shared_ptr <Texture> tex, std::shared_ptr <Texture> resultTex) {
-			somQuad->setShader(brightShader);
+			//somQuad->setShader(brightShader);
 			fbo->addTexture(brightTex, 0);
-			somQuad->replaceTex(0, tex);
+			//somQuad->replaceTex(0, tex);
 
 			//fro->render(window);
 
 			blurEffect->render(window, brightTex, brightTex);
 
-			somQuad->setShader(shady);
-			somQuad->replaceTex(0,tex);
-			somQuad->replaceTex(1, brightTex);
+			//somQuad->setShader(shady);
+			//somQuad->replaceTex(0,tex);
+			//somQuad->replaceTex(1, brightTex);
 			fbo->addTexture(resultTex, 0);
 			//fro->render(window);
 

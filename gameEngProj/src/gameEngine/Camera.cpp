@@ -31,11 +31,11 @@ void gameEngine::Camera::rotateCam(bool left) {
 }
 void gameEngine::Camera::onkeyPress(int key) {
 	if (key == GLFW_KEY_W) {
-		camPos += (frontVec) * 0.01f;
+		camPos += (frontVec) * 0.1f;
 		camFront = camPos + frontVec;
 	}
 	else if (key == GLFW_KEY_S) {
-		camPos -= (frontVec) * 0.01f;
+		camPos -= (frontVec) * 0.1f;
 		camFront = camPos + frontVec;
 	}
 	else if (key == GLFW_KEY_A) {
@@ -45,11 +45,11 @@ void gameEngine::Camera::onkeyPress(int key) {
 		rotateCam(true);
 	}
 	else if (key == GLFW_KEY_X) {
-		camPos -= (worldUp) * 0.001f;
+		camPos -= (worldUp) * 0.1f;
 		camFront = camPos + frontVec;
 	}
 	else if (key == GLFW_KEY_Z) {
-		camPos += (worldUp) * 0.001f;
+		camPos += (worldUp) * 0.1f;
 		camFront = camPos + frontVec;
 	}
 

@@ -1,6 +1,6 @@
 #pragma once
 #include"GameWindow.h"
-
+#include"Renderer.h"
 gameEngine::GameWindow* gameEngine::GameWindow::gameWin = NULL;
 //export gameEngine::GameWindow* gameEngine::GameWindow::gameWin;
 
@@ -63,7 +63,7 @@ void gameEngine::GameWindow::updateProjMatrix(Shader* shady) {
 	shady->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
 }
 
-gameEngine::GameWindow* gameEngine::initGameWindow(const char* winName, const int WINDOW_WIDTH, const int WINDOW_HEIGHT) {
+gameEngine::GameWindow* gameEngine::GameWindow::initGameWindow(const char* winName, const int WINDOW_WIDTH, const int WINDOW_HEIGHT) {
 	if (gameEngine::GameWindow::gameWin == NULL) {
 		gameEngine::GameWindow::gameWin = new gameEngine::GameWindow(winName, WINDOW_WIDTH, WINDOW_HEIGHT);
 		gameEngine::GameWindow::gameWin->initWindowLayer();
@@ -72,8 +72,12 @@ gameEngine::GameWindow* gameEngine::initGameWindow(const char* winName, const in
 	return gameEngine::GameWindow::gameWin;
 }
 
+void gameEngine::GameWindow::addModel(std::shared_ptr<Model> som) {
+	som->sendToRenderer(gameEngine::GameWindow::gameWin->winRenderer);
+}
+
 gameEngine::ImGUILayer* gameEngine::getIMGUILayer() {
-	return initGameWindow()->somLay;
+	return GameWindow::initGameWindow()->somLay;
 }
 
 void gameEngine::GameWindow::initWindowLayer() {
@@ -122,28 +126,31 @@ void gameEngine::GameWindow::initWindowLayer() {
 	//ImGui_ImplGlfw_InitForOpenGL(window, true);
 	//ImGui_ImplOpenGL3_Init("#version 440");
 	somLay->onAttach();
+	winRenderer = std::make_shared<Renderer>(*new Renderer());
 }
 
 
 
-inline void gameEngine::addToManager(std::shared_ptr <GameObj> somObj) {
+inline void gameEngine::GameWindow::addToManager(std::shared_ptr <GameObj> somObj) {
 	initGameWindow()->manager->addNewObj(somObj);
 }
-void gameEngine::addTex(std::shared_ptr <Texture> po) {
+void gameEngine::GameWindow::addTex(std::shared_ptr <Texture> po) {
 	initGameWindow()->finTex.push_back(po);
 }
-void gameEngine::setFinalShader(std::shared_ptr <Shader> shad) {
+void gameEngine::GameWindow::setFinalShader(std::shared_ptr <Shader> shad) {
 	initGameWindow()->finalShader = shad;
-	Quad* tempQuad = new Quad(glm::vec3(0.f), glm::vec3(0.f), 0.5f, 0.5f, shad, 0.f);
-	initGameWindow()->window2D = std::make_shared<Quad>(*tempQuad);
+	initGameWindow()->window2D = std::make_shared<Model>(*new Model(Model::QUAD_MESH, glm::vec3(0.f,0.f,0.f), glm::vec3(0.f), shad));
+	std::shared_ptr<Material> som = std::make_shared<Material>(*new Material(initGameWindow()->finTex[0]));
+	initGameWindow()->window2D->setMaterial(som);
+	initGameWindow()->window2D->sendToRenderer(initGameWindow()->winRenderer);
 }
 
-inline gameEngine::GameWindow* gameEngine::getWindow() {
-	return gameEngine::initGameWindow();
+inline gameEngine::GameWindow* gameEngine::GameWindow::getWindow() {
+	return initGameWindow();
 }
 
-inline GLFWwindow* gameEngine::getGLFWWindow() {
-	return gameEngine::initGameWindow()->window;
+inline GLFWwindow* gameEngine::GameWindow::getGLFWWindow() {
+	return initGameWindow()->window;
 }
 
 void gameEngine::GameWindow::update() {
@@ -189,7 +196,7 @@ void gameEngine::GameWindow::render() {
 			layerArr[i]->renderLayer();
 		}
 
-
+		glfwPollEvents();
 		preRender();
 		postRender();
 
@@ -213,21 +220,23 @@ void gameEngine::GameWindow::render() {
 
 		glfwGetFramebufferSize(window, &framebufferwidth, &framebufferheight);
 		glViewport(0, 0, framebufferwidth, framebufferheight);
-		finalShader->Use();
+		//finalShader->Use();
 
-		for (int i = 0; i < finTex.size(); i++) {
-			finTex[i]->bind();
+		/*for (int i = 0; i < finTex.size(); i++) {
+			finTex[i]->bind(i);
 			std::string top = "texture" + std::to_string(i);
-			finalShader->setUniform1i(top.c_str(), finTex[i]->getTextureUnit());
-		}
-		window2D->updateProjMatrix(window);
-		winCam->sendToShader(finalShader);
+			finalShader->setUniform1i(top.c_str(), i);
+		}*/
+		//window2D->updateProjMatrix(window);
+		//winCam->sendToShader(finalShader);
 
-		window2D->updateModelMatrix();
-		window2D->Draw();
-		finalShader->unUse();
+		winRenderer->Draw(winCam);
 
-		
+		/*window2D->updateModelMatrix();
+		window2D->Draw();*/
+		//finalShader->unUse();
+
+		glfwPollEvents();
 
 
 
@@ -256,29 +265,29 @@ void gameEngine::GameWindow::render() {
 	somLay->endLayer();
 }
 
-void gameEngine::renderWindow() {
+void gameEngine::GameWindow::renderWindow() {
 	initGameWindow()->render();
 }
 
-void gameEngine::updateWindow() {
+void gameEngine::GameWindow::updateWindow() {
 	//this will update all layers
 	initGameWindow()->update();
 }
 
 void framebuffer_resize_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
-	gameEngine::getWindow()->setFrameSize(width, height);
+	gameEngine::GameWindow::getWindow()->setFrameSize(width, height);
 }
 
-void gameEngine::addLayer(std::shared_ptr <gameEngine::Layer> som) {
-	gameEngine::initGameWindow()->layerArr.push_back(som);
+void gameEngine::GameWindow::addLayer(std::shared_ptr <gameEngine::Layer> som) {
+	initGameWindow()->layerArr.push_back(som);
 }
-void gameEngine::getFrameSize(int& fwidth, int& fheight) {
-	glfwGetFramebufferSize(gameEngine::initGameWindow()->window, &fwidth, &fheight);
-	fwidth = gameEngine::initGameWindow()->framebufferwidth;
-	fheight = gameEngine::initGameWindow()->framebufferheight;
+void gameEngine::GameWindow::getFrameSize(int& fwidth, int& fheight) {
+	glfwGetFramebufferSize(initGameWindow()->window, &fwidth, &fheight);
+	fwidth = initGameWindow()->framebufferwidth;
+	fheight = initGameWindow()->framebufferheight;
 }
 
-void gameEngine::deleteWindow() {
-	delete gameEngine::initGameWindow();
+void gameEngine::GameWindow::deleteWindow() {
+	delete initGameWindow();
 }

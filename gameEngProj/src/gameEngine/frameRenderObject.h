@@ -3,7 +3,7 @@
 #include"Core.h"
 #include"framebufferObject.h"
 #include"Light.h"
-
+#include"GameWindow.h"
 
 
 namespace gameEngine {
@@ -81,7 +81,7 @@ namespace gameEngine {
 			int framebufferwidth = 800;
 			int framebufferheight = 800;
 			fbo->bind();
-			gameEngine::getFrameSize(framebufferwidth, framebufferheight);
+			gameEngine::GameWindow::getFrameSize(framebufferwidth, framebufferheight);
 
 			glm::mat4 projMatrix(1.f);
 			float nearPlane = 0.1f;

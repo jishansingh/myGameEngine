@@ -8,8 +8,6 @@ namespace gameEngine {
 	class FUN_API CommonUsed {
 	public:
 		static std::shared_ptr<Camera> quadCam;
-		static std::shared_ptr<Quad> somQuad;
-		static std::shared_ptr <Cube> somCube;
 		static void initCamera();
 	};
 	class FUN_API EffectObj: public CommonUsed {

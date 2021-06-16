@@ -27,9 +27,10 @@ namespace gameEngine{
 
 	//public:
 		EventManager* manager;
-		std::shared_ptr <Quad> window2D;
+		std::shared_ptr <Model> window2D;
 		std::shared_ptr <Shader> finalShader;
 		std::shared_ptr <Camera> winCam;
+		std::shared_ptr <Renderer> winRenderer;
 		//Camera* winCam;
 
 		std::vector< std::shared_ptr <Texture>>finTex;
@@ -60,22 +61,21 @@ namespace gameEngine{
 			framebufferheight = fheight;
 		}
 
-		
+		static GameWindow* initGameWindow(const char* winName = "test window", const int WINDOW_WIDTH = 800, const int WINDOW_HEIGHT = 800);
+		static void deleteWindow();
+		static inline void addToManager(std::shared_ptr <GameObj> somObj);
+		static void addTex(std::shared_ptr <Texture> po);
+		static void addLayer(std::shared_ptr <Layer> som);
+		static void setFinalShader(std::shared_ptr <Shader> shad);
+		static void renderWindow();
+		static void updateWindow();
+		static inline GameWindow* getWindow();
+		static inline GLFWwindow* getGLFWWindow();
+		static void getFrameSize(int& fwidth, int& fheight);
+		static void addModel(std::shared_ptr<Model> som);
 	};
 
-	FUN_API GameWindow* initGameWindow(const char* winName = "test window", const int WINDOW_WIDTH = 800, const int WINDOW_HEIGHT = 800);
-	FUN_API void deleteWindow();
-
-
-	FUN_API inline void addToManager(std::shared_ptr <GameObj> somObj);
-	FUN_API void addTex(std::shared_ptr <Texture> po);
-	FUN_API void addLayer(std::shared_ptr <Layer> som);
-	FUN_API void setFinalShader(std::shared_ptr <Shader> shad);
-	FUN_API void renderWindow();
-	FUN_API void updateWindow();
-	FUN_API inline GameWindow* getWindow();
-	FUN_API inline GLFWwindow* getGLFWWindow();
-	FUN_API void getFrameSize(int& fwidth, int& fheight);
+	
 	FUN_API ImGUILayer* getIMGUILayer();
 
 	void createEngine();

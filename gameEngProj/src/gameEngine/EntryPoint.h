@@ -16,23 +16,23 @@
 //
 //extern void gameEngine::getFrameSize(int& fwidth, int& fheight);
 
+//gameEngine::CustomMesh* extern gameEngine::CustomMesh::customM;
+
 extern void gameEngine::createEngine();
 std::shared_ptr<gameEngine::Camera> gameEngine::CommonUsed::quadCam;
-std::shared_ptr<gameEngine::Quad> gameEngine::CommonUsed::somQuad;
-std::shared_ptr<gameEngine::Cube> gameEngine::CommonUsed::somCube;
-
 
 
 
 int main(int argc, char* argv[]) {
 	
 	gameEngine::pingPongFBO::initHorizon();
-	gameEngine::initGameWindow("mywindow");
-	gameEngine::Model::initModelLoader("");
+	gameEngine::GameWindow::initGameWindow("mywindow");
+	gameEngine::CustomMesh::initCustomMesh();
+	gameEngine::modelLoader::initModelLoader("");
 	gameEngine::CommonUsed::initCamera();
 
 	gameEngine::createEngine();
-	gameEngine::renderWindow();
-	gameEngine::deleteWindow();
+	gameEngine::GameWindow::renderWindow();
+	gameEngine::GameWindow::deleteWindow();
 	//delete gameEngine::EffectObj::quadCam;
 }

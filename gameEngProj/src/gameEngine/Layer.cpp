@@ -41,7 +41,7 @@ void gameEngine::ImGUILayer::onAttach() {
 	ImGui::StyleColorsDark();
 	//manager->addNewObj(winCam);
 
-	ImGui_ImplGlfw_InitForOpenGL(gameEngine::getGLFWWindow(), true);
+	ImGui_ImplGlfw_InitForOpenGL(gameEngine::GameWindow::getGLFWWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 }
 void gameEngine::ImGUILayer::onUpdate() {
@@ -53,7 +53,7 @@ void gameEngine::ImGUILayer::onUpdate() {
 	ImGuiIO& io = ImGui::GetIO();
 	int framebufferwidth;
 	int framebufferheight;
-	glfwGetFramebufferSize(gameEngine::getGLFWWindow(), &framebufferwidth, &framebufferheight);
+	glfwGetFramebufferSize(gameEngine::GameWindow::getGLFWWindow(), &framebufferwidth, &framebufferheight);
 	io.DisplaySize = ImVec2(framebufferwidth, framebufferheight);
 	ImGui::SetNextWindowSize(io.DisplaySize);
 	float time = glfwGetTime();

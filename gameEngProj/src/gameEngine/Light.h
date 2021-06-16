@@ -2,7 +2,6 @@
 
 #include"libs.h"
 #include"Core.h"
-#include"GameWindow.h"
 #include"Effects/postProcessingEff.h"
 
 namespace gameEngine {
@@ -25,7 +24,7 @@ namespace gameEngine {
 		std::shared_ptr<frameRenderObject>fro;
 		std::shared_ptr<frameRenderObject>drawFRO;
 		std::shared_ptr<ObjectRender>lightObj;
-		std::shared_ptr <instancedRenderer>lightDraw;
+		std::shared_ptr <Model>lightDraw;
 		bool drawLight = false;
 	public:
 		Light(std::vector<std::shared_ptr<Texture>>texBuffer, std::shared_ptr<Shader> lightShader, const bool draw = false);

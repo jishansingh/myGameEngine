@@ -115,10 +115,10 @@ namespace gameEngine {
 			}
 			
 			if (vertState & NORM_VERTIN) {
-				vertShaderString += "vec3 fs_normal = vec3(rotationMatrix[0]*vec4(vs_normal,1.f));\n";
+				vertShaderString += "fs_normal = vec3(rotationMatrix[0]*vec4(vs_normal,1.f));\n";
 			}
 			if (vertState & TEX_COORDIN) {
-				vertShaderString += "vec2 fs_texcoord = vs_texcoord;\n";
+				vertShaderString += "fs_texcoord = vs_texcoord;\n";
 			}
 			vertShaderString += "gl_Position = projectionMatrix*viewMatrix*somPos;\n";
 			vertShaderString += "fs_position = somPos.xyz;\n";
@@ -174,9 +174,9 @@ namespace gameEngine {
 			}
 
 			fragShaderString += "struct Material{\n";
-			fragShaderString += "   sampler2D albedoTex,\n";
-			fragShaderString += "   sampler2D specularTex,\n";
-			fragShaderString += "   sampler2D normalTex\n";
+			fragShaderString += "   sampler2D albedoTex;\n";
+			fragShaderString += "   sampler2D specularTex;\n";
+			fragShaderString += "   sampler2D normalTex;\n";
 			fragShaderString += "   };\n";
 
 			/*
@@ -228,7 +228,7 @@ namespace gameEngine {
 
 
 			
-			fragShaderString += "Material materialData["+std::to_string(size)+"];\n";
+			fragShaderString += "uniform Material materialData["+std::to_string(size)+"];\n";
 
 			//main function starts
 
@@ -236,10 +236,10 @@ namespace gameEngine {
 			if (fragInp & NORM_VERT) {
 				fragShaderString += "fso_normal = fs_normal;\n";
 			}
-			if (fragInp & NORM_COLOR_INST) {
+			else if (fragInp & NORM_COLOR_INST) {
 				fragShaderString += "fso_normal = texture(materialData[gl_InstanceID].normal_tex,fs_texcoord).rgb;\n";
 			}
-			else {
+			else if(fragOut& NORMAL_TEX){
 				fragShaderString += "fso_normal = texture(materialData[0].normal_tex,fs_texcoord).rgb;\n";
 			}
 			//roughness

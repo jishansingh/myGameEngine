@@ -1,12 +1,10 @@
 #pragma once
 #include"libs.h"
-#include"Texture.h"
-#include"Shader.h"
-#include"Material.h"
+#include"GameObject.h"
 namespace gameEngine {
 	class FUN_API Mesh :public sharedObj{
 	private: 
-		std::vector<Vertex>vertices;
+		std::vector<float>vertices;
 		std::vector<unsigned int>indices;
 		/*std::vector<std::shared_ptr <Texture>>diffuseTex;
 		std::vector< std::shared_ptr <Texture>>specularTex;*/
@@ -14,33 +12,82 @@ namespace gameEngine {
 		unsigned int ibo;
 		unsigned int vao;
 
-		void initBuffers() {
+		int getData(int som) {
+			int count = 0;
+			if (som & P3F) {
+				count+=3;
+			}
+			else if (som & P2F) {
+				count += 2;
+			}
+			if (som & N3F) {
+				count += 3;
+			}
+			if (som & T2F) {
+				count += 2;
+			}
+			return count;
+		}
+		void initBuffers(int distStyle) {
 
+			int dataCount = getData(distStyle);
 			glGenVertexArrays(1, &vao);
 			glBindVertexArray(vao);
 
 			glGenBuffers(1, &vbo);
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
-			glGenBuffers(1, &ibo);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+			if (indices.size() != 0) {
+				glGenBuffers(1, &ibo);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
+			}
+			else {
+				ibo = -1;
+			}
+			
 
-
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-			glEnableVertexAttribArray(0);
-
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-			glEnableVertexAttribArray(1);
-
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texcoord));
-			glEnableVertexAttribArray(2);
+			int count = 0;
+			int dataPrev = 0;
+			//glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			if (distStyle & P3F) {
+				glVertexAttribPointer(count, 3, GL_FLOAT, GL_FALSE, dataCount *sizeof(float), (void*)(dataPrev*sizeof(float)));
+				glEnableVertexAttribArray(count);
+				count++;
+				dataPrev += 3;
+			}
+			else if (distStyle & P2F) {
+				glVertexAttribPointer(count, 2, GL_FLOAT, GL_FALSE, dataCount *sizeof(float), (void*)(dataPrev*sizeof(float)));
+				glEnableVertexAttribArray(count);
+				count++;
+				dataPrev += 2;
+			}
+			
+			if (distStyle & N3F) {
+				glVertexAttribPointer(count, 3, GL_FLOAT, GL_FALSE, dataCount * sizeof(float), (void*)(dataPrev*sizeof(float)));
+				glEnableVertexAttribArray(count);
+				count++;
+				dataPrev += 3;
+			}
+			if (distStyle & T2F) {
+				glVertexAttribPointer(count, 2, GL_FLOAT, GL_FALSE, dataCount * sizeof(float), (void*)(sizeof(float)*dataPrev));
+				glEnableVertexAttribArray(count);
+				count++;
+				dataPrev += 2;
+			}
+			
 
 		}
 
 	public:
-		Mesh(std::vector<Vertex>& vert, std::vector<unsigned int>& index_arr) {
+		enum dataDistribution {
+			P3F=1,
+			N3F=2,
+			T2F=4,
+			P2F=8
+		};
+		Mesh(std::vector<float>& vert, std::vector<unsigned int>& index_arr, int distr = P3F|N3F|T2F) {
 			this->vertices = vert;
 			this->indices = index_arr;
 			//this->diffuseTex = diffuse_tex_mat;
@@ -54,7 +101,7 @@ namespace gameEngine {
 			}
 			*/
 
-			initBuffers();
+			initBuffers(distr);
 		}
 		void bindData() {
 			glBindVertexArray(vao);
@@ -76,7 +123,13 @@ namespace gameEngine {
 			
 		}
 		void Draw(int count) {
-			if (count!=1) {
+			if (ibo == -1 && count != 1) {
+				glDrawArraysInstanced(GL_TRIANGLES, 0, vertices.size() / 3, count);
+			}
+			else if (ibo == -1) {
+				glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 3);
+			}
+			else if (count!=1) {
 				glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, count);
 			}
 			else {
@@ -96,4 +149,6 @@ namespace gameEngine {
 		}
 
 	};
+
+
 }

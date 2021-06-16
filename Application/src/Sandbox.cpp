@@ -37,7 +37,7 @@
 void gameEngine::createEngine() {
 	std::shared_ptr<gameEngine::GameViewLayer> glObj = std::make_shared<gameEngine::GameViewLayer>(*new gameEngine::GameViewLayer());
 
-	gameEngine::addLayer(glObj);
+	gameEngine::GameWindow::addLayer(glObj);
 
 	//std::shared_ptr <gameEngine::Shader> modelShader    = std::make_shared <gameEngine::Shader>   ( *new gameEngine::Shader("modelVertexShader.glsl", "modelFragmentShader.glsl", ""));
 	
