@@ -62,6 +62,44 @@ namespace gameEngine {
 			cam->sendToShader(modelShader);
 
 		}
+		std::shared_ptr<Shader> getShaderFromMesh(int index) {
+			int vertDist = meshArr[index]->objMesh->getVerticesDistribution();
+			int vertShaderInput = 0;
+			int fragShaderInput = 0;
+			int fragShaderOutput = ShaderInit::ALBEDO_COLOR;
+			if (vertDist & Mesh::N3F) {
+				vertShaderInput |= ShaderInit::NORM_VERTIN;
+				fragShaderInput |= ShaderInit::NORM_VERT;
+			}
+			if (vertDist & Mesh::T2F) {
+				vertShaderInput |= ShaderInit::TEX_COORDIN;
+				fragShaderInput |= ShaderInit::TEX_COORD;
+			}
+
+			std::shared_ptr<Material> meshMat = instanceArr[index][0]->objMaterial;
+
+			if (meshMat->diffuseTex) {
+				fragShaderInput |= ShaderInit::ALBEDO_TEX;
+			}
+			if (meshMat->specularTex) {
+				fragShaderInput |= ShaderInit::SPECULAR_TEX;
+			}
+			ShaderInit somExample;
+			std::string vertShader = somExample.getVertShader(vertShaderInput);
+			std::string fragShader = somExample.getFragShader(fragShaderInput, fragShaderOutput);
+
+			std::shared_ptr <gameEngine::Shader> modelShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader(vertShader, fragShader, ""));
+
+			return modelShader;
+		}
+		void createShader() {
+			ShaderInit som;
+			for (int i = 0; i < meshArr.size(); i++) {
+				if (!meshArr[i]->shady) {
+					meshArr[i]->setShader(getShaderFromMesh(i));
+				}
+			}
+		}
 		void Draw(std::shared_ptr <Camera> cam) {
 			
 			for (int i = 0; i < meshArr.size();i++) {

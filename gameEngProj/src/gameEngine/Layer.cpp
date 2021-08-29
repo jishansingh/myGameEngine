@@ -2,6 +2,12 @@
 #include"Layer.h"
 #include"gameViewLayer.h"
 
+
+//void gameEngine::imguiSize(void* som) {
+//	ImGui::SliderFloat("float", &((gameEngine::GameViewLayer*)som)->size, 0.0f, 100.0f);
+//	std::cout << "yes";
+//}
+
 gameEngine::Layer::Layer() {
 }
 
@@ -74,7 +80,9 @@ void gameEngine::ImGUILayer::onUpdate() {
 	for (auto som : menus) {
 		(som->func)(som->parameter);
 	}
-	//imguiSize();
+	/*auto som = menus[0];
+	som->func(som->parameter);*/
+	//imguiSize(menus[0]->parameter);
 	ImGui::End();
 	{
 		static float f = 0.0f;

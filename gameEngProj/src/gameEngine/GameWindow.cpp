@@ -88,43 +88,9 @@ void gameEngine::GameWindow::initWindowLayer() {
 	Camera* tempCam = new Camera(glm::vec3(0.f, 0.f, 1.f));
 	winCam = std::make_shared<Camera>(*tempCam);
 
+	//debug layer
 	somLay = new ImGUILayer();
 
-	/*IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;*/
-
-	//io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;         // We can honor GetMouseCursor() values (optional)
-	//io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;
-
-	//io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-	//io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-	//io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-	//io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-	//io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-	//io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-	//io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-	//io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-	//io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-	//io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
-	//io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-	//io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-	//io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
-	//io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-	//io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-	//io.KeyMap[ImGuiKey_KeyPadEnter] = GLFW_KEY_KP_ENTER;
-	//io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-	//io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-	//io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-	//io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-	//io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-	//io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
-
-	//ImGui::StyleColorsDark();
-	//manager->addNewObj(winCam);
-
-	//ImGui_ImplGlfw_InitForOpenGL(window, true);
-	//ImGui_ImplOpenGL3_Init("#version 440");
 	somLay->onAttach();
 	winRenderer = std::make_shared<Renderer>(*new Renderer());
 }

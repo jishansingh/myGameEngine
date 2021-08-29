@@ -5,11 +5,17 @@
 namespace gameEngine {
 	class FUN_API MeshDataInstance {
 	public:
-		MeshDataInstance() {}
 		std::shared_ptr<Material> objMaterial;
 		glm::mat4* positionMat;
 		glm::mat4* scaleMat;
 		glm::mat4* rotationMat;
+		MeshDataInstance() {
+		}
+		~MeshDataInstance() {
+			delete positionMat;
+			delete scaleMat;
+			delete rotationMat;
+		}
 	};
 
 	class FUN_API MeshInstance {
@@ -21,6 +27,13 @@ namespace gameEngine {
 		MeshInstance(std::shared_ptr<Mesh> mes, std::shared_ptr<Material> som);
 		MeshInstance(std::shared_ptr<Mesh> mes);
 		MeshInstance();
+
+		inline void setShader(std::shared_ptr<Shader> custShader) {
+			if (shady) {
+				return;
+			}
+			shady = custShader;
+		}
 
 		bool operator==(const MeshInstance& p) const {
 			return objMesh.get() == p.objMesh.get() && shady.get() == p.shady.get();

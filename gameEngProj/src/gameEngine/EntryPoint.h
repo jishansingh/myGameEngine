@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
 
 	gameEngine::createEngine();
 	gameEngine::GameWindow::renderWindow();
+	gameEngine::modelLoader::deinitModelLoader();
 	gameEngine::GameWindow::deleteWindow();
 	//delete gameEngine::EffectObj::quadCam;
 }

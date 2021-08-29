@@ -35,9 +35,10 @@ namespace gameEngine {
 			QUAD_MESH
 		};
 
-		Model(const char* path, glm::vec3 pos, glm::vec3 rot, std::shared_ptr <Shader> shaderM, int cusSize = 1);
-		Model(int type, glm::vec3 pos, glm::vec3 rot, std::shared_ptr <Shader> shaderM, glm::vec3 cusSize = glm::vec3(1.f));
+		Model(const char* path, glm::vec3 pos, glm::vec3 rot, std::shared_ptr <Shader> shaderM=NULL, int cusSize = 1);
+		Model(int type, glm::vec3 pos, glm::vec3 rot, std::shared_ptr <Shader> shaderM=NULL, glm::vec3 cusSize = glm::vec3(1.f));
 		virtual ~Model() {
+			delete meshData;
 		}
 		inline glm::vec3 getPosition() {
 			return position;

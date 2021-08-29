@@ -233,14 +233,14 @@ namespace gameEngine {
 			//main function starts
 
 			fragShaderString += "void main(){\n";
-			if (fragInp & NORM_VERT) {
+			if (fragOut & NORM_VERT) {
 				fragShaderString += "fso_normal = fs_normal;\n";
 			}
-			else if (fragInp & NORM_COLOR_INST) {
-				fragShaderString += "fso_normal = texture(materialData[gl_InstanceID].normal_tex,fs_texcoord).rgb;\n";
+			else if (fragOut & NORM_COLOR_INST) {
+				fragShaderString += "fso_normal = texture(materialData[gl_InstanceID].normalTex,fs_texcoord).rgb;\n";
 			}
 			else if(fragOut& NORMAL_TEX){
-				fragShaderString += "fso_normal = texture(materialData[0].normal_tex,fs_texcoord).rgb;\n";
+				fragShaderString += "fso_normal = texture(materialData[0].normalTex,fs_texcoord).rgb;\n";
 			}
 			//roughness
 			if (fragOut & ROUGHNESS_TEX) {

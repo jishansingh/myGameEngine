@@ -80,7 +80,7 @@ namespace gameEngine {
 		void updateProjectionMat(std::shared_ptr <Shader> shady) {
 			int framebufferwidth = 800;
 			int framebufferheight = 800;
-			fbo->bind();
+			//fbo->bind();
 			gameEngine::GameWindow::getFrameSize(framebufferwidth, framebufferheight);
 
 			glm::mat4 projMatrix(1.f);

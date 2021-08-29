@@ -1,6 +1,7 @@
 #pragma once
 #include"libs.h"
 #include"GameObject.h"
+#include"CustomShader.h"
 namespace gameEngine {
 	class FUN_API Mesh :public sharedObj{
 	private: 
@@ -11,6 +12,8 @@ namespace gameEngine {
 		unsigned int vbo;
 		unsigned int ibo;
 		unsigned int vao;
+
+		int verticesDistribution;
 
 		int getData(int som) {
 			int count = 0;
@@ -29,6 +32,7 @@ namespace gameEngine {
 			return count;
 		}
 		void initBuffers(int distStyle) {
+			verticesDistribution = distStyle;
 
 			int dataCount = getData(distStyle);
 			glGenVertexArrays(1, &vao);
@@ -121,6 +125,9 @@ namespace gameEngine {
 			//diffuseTex[0].bind();
 			//glDrawElementsInstanced(GL_TRIANGLES,indices.size(), GL_UNSIGNED_INT, 0, 10000);
 			
+		}
+		int getVerticesDistribution() {
+			return verticesDistribution;
 		}
 		void Draw(int count) {
 			if (ibo == -1 && count != 1) {

@@ -49,6 +49,9 @@ void gameEngine::Material::bind(std::shared_ptr <Shader>shady, int matIndex, int
 	diffuseTex->bind(texUnit);
 	shady->setUniform1i(temp.c_str(), texUnit);
 	texUnit += 1;
+	if (!specularTex) {
+		return;
+	}
 	temp = "materialData[" + std::to_string(matIndex) + "].specularTex";
 	specularTex->bind(texUnit);
 	shady->setUniform1i(temp.c_str(), texUnit);
