@@ -2,13 +2,24 @@
 #include"libs.h"
 #include"Model.h"
 #include"Camera.h"
+#include"GameWindow.h"
 namespace gameEngine {
-	
+	enum SceneOutput {
+		ALBEDO_TEX = 1,
+		SPECULAR_TEX = 2,
+		POSITION_TEX = 4,
+		DEPTH_TEX = 16,
+		NORMAL_TEX = 8
+	};
 	class Renderer {
 		std::vector< MeshInstance*>meshArr;
 		std::vector< std::vector<MeshDataInstance*>> instanceArr;
+		int renderState = 0;
 	public:
-		Renderer(){}
+
+		Renderer(int state){
+			renderState = state;
+		}
 		int checkInList(MeshInstance* somP) {
 			return -1;
 			/*for (int i = 0; i < meshArr.size(); i++) {
@@ -50,7 +61,7 @@ namespace gameEngine {
 
 			int framebufferwidth = 800;
 			int framebufferheight = 800;
-
+			gameEngine::GameWindow::getFrameSize(framebufferwidth, framebufferheight);
 			glm::mat4 projMatrix(1.f);
 			float nearPlane = 0.1f;
 			float farPlane = 100.f;
@@ -65,15 +76,18 @@ namespace gameEngine {
 		std::shared_ptr<Shader> getShaderFromMesh(int index) {
 			int vertDist = meshArr[index]->objMesh->getVerticesDistribution();
 			int vertShaderInput = 0;
+			int vertShaderOutput = 0;
 			int fragShaderInput = 0;
 			int fragShaderOutput = ShaderInit::ALBEDO_COLOR;
 			if (vertDist & Mesh::N3F) {
 				vertShaderInput |= ShaderInit::NORM_VERTIN;
 				fragShaderInput |= ShaderInit::NORM_VERT;
+				vertShaderOutput = ShaderInit::NORM_VERT;
 			}
 			if (vertDist & Mesh::T2F) {
 				vertShaderInput |= ShaderInit::TEX_COORDIN;
 				fragShaderInput |= ShaderInit::TEX_COORD;
+				vertShaderOutput = ShaderInit::TEX_COORD;
 			}
 
 			std::shared_ptr<Material> meshMat = instanceArr[index][0]->objMaterial;
@@ -84,8 +98,16 @@ namespace gameEngine {
 			if (meshMat->specularTex) {
 				fragShaderInput |= ShaderInit::SPECULAR_TEX;
 			}
+
+			if (renderState & ALBEDO_TEX) {
+				fragShaderOutput |= ShaderInit::ALBEDO_COLOR;
+			}
+			if (renderState & SPECULAR_TEX) {
+				fragShaderOutput |= ShaderInit::SPECULAR_OUT;
+			}
+
 			ShaderInit somExample;
-			std::string vertShader = somExample.getVertShader(vertShaderInput);
+			std::string vertShader = somExample.getVertShader(vertShaderInput, vertShaderOutput);
 			std::string fragShader = somExample.getFragShader(fragShaderInput, fragShaderOutput);
 
 			std::shared_ptr <gameEngine::Shader> modelShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader(vertShader, fragShader, ""));

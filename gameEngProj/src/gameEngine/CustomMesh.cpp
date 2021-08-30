@@ -5,16 +5,16 @@ gameEngine::CustomMesh* gameEngine::CustomMesh::customM;
 
 gameEngine::CustomMesh::CustomMesh() {
 	std::vector<float> vertices_box = {
-		-0.5f, 0.5f, 0.f, 1.f,
-		-0.5f,-0.5f, 0.f, 0.f,
-		 0.5f,-0.5f, 1.f, 0.f,
-		 0.5f, 0.5f, 1.f, 1.f
+		-0.5f, 0.5f,0.f, 0.f, 1.f,
+		-0.5f,-0.5f,0.f, 0.f, 0.f,
+		 0.5f,-0.5f,0.f, 1.f, 0.f,
+		 0.5f, 0.5f,0.f, 1.f, 1.f
 	};
 	std::vector<unsigned int> indVert = {
 		2,1,0,
 		3,2,0
 	};
-	quad = new Mesh(vertices_box, indVert, Mesh::dataDistribution::P2F | Mesh::dataDistribution::T2F);
+	quad = new Mesh(vertices_box, indVert, Mesh::dataDistribution::P3F | Mesh::dataDistribution::T2F);
 
 	std::vector<float> vertices = {
 		// back face

@@ -35,15 +35,15 @@
 //};
 
 void gameEngine::createEngine() {
-	std::shared_ptr<gameEngine::GameViewLayer> glObj = std::make_shared<gameEngine::GameViewLayer>(*new gameEngine::GameViewLayer());
+	std::shared_ptr<gameEngine::GameViewLayer> glObj = std::make_shared<gameEngine::GameViewLayer>(*new gameEngine::GameViewLayer(ALBEDO_TEX));
 	gameEngine::GameWindow::addLayer(glObj);
 	ShaderInit sompo;
-	std::string vertShader = sompo.getVertShader(ShaderInit::NORM_VERTIN | ShaderInit::TEX_COORDIN);
+	std::string vertShader = sompo.getVertShader(ShaderInit::NORM_VERTIN | ShaderInit::TEX_COORDIN, ShaderInit::NORM_VERT | ShaderInit::TEX_COORD);
 	std::string fragShader = sompo.getFragShader(ShaderInit::NORM_VERT | ShaderInit::TEX_COORD | ShaderInit::ALBEDO_TEX | ShaderInit::SPECULAR_TEX, ShaderInit::ALBEDO_COLOR | ShaderInit::NORMAL_TEX);
 
 	std::shared_ptr <gameEngine::Shader> modelShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader(vertShader, fragShader, ""));
 
-	std::shared_ptr <gameEngine::Model> somLoad2 = std::make_shared <gameEngine::Model>(*new gameEngine::Model("objfile/nanosuit/nanosuit.obj", glm::vec3(20.f, 0.f, 0.f), glm::vec3(0.f), modelShader));
+	std::shared_ptr <gameEngine::Model> somLoad2 = std::make_shared <gameEngine::Model>(*new gameEngine::Model("objfile/nanosuit/nanosuit.obj", glm::vec3(20.f, 0.f, 0.f), glm::vec3(0.f)));
 	(somLoad2)->setSize(1.f);
 	glObj->sendToRenderer(somLoad2);
 	//glObj->addObjectToLayer(somLoad2);

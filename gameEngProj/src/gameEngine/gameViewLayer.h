@@ -10,22 +10,34 @@ namespace gameEngine {
 	class FUN_API GameViewLayer:public Layer {
 	public:
 		std::shared_ptr<framebufferObject> fbo;
-		std::shared_ptr <frameRenderObject> fro;
 		std::shared_ptr <Camera> cam;
 		std::shared_ptr<Renderer> layerRenderer;
 		std::vector<std::shared_ptr <gameEngine::Model>> drawModel;
+
+		
+		int layerOutput;
+
 		float size;
-		GameViewLayer(): Layer() {
+		GameViewLayer(int state): Layer() {
+			layerOutput = state;
 			fbo = std::make_shared<framebufferObject>(*new framebufferObject(false));
 			cam = std::make_shared<Camera>(*new Camera(glm::vec3(0.f, 0.f, 1.f)));
-			layerRenderer = std::make_shared<Renderer>(*new Renderer());
-			fbo->addAttachment(3);
+			layerRenderer = std::make_shared<Renderer>(*new Renderer(state));
+			int count = 0;
+			for (int i = 0; i < 4; i++) {
+				if (state & (1 << i)) {
+					count++;
+				}
+			}
+			fbo->addAttachment(count);
 			size = 100.f;
 		}
 		void setSize(float somSize) {
 			size = somSize;
 		}
-		
+		void setLayerOutput(int layOutput) {
+			layerOutput = layOutput;
+		}
 
 		virtual void onAttach();
 		void updateProjectionMat(std::shared_ptr <Shader> shady) {

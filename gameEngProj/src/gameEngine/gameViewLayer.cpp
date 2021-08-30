@@ -14,15 +14,9 @@ void gameEngine::GameViewLayer::onAttach() {
 
 
 	ShaderInit sompo;
-	std::string vertShader1 = sompo.getVertShader(ShaderInit::TEX_COORDIN);
-	std::string fragShader1 = sompo.getFragShader(ShaderInit::TEX_COORD | ShaderInit::ALBEDO_TEX, ShaderInit::ALBEDO_COLOR);
-	std::shared_ptr <gameEngine::Shader> modelShader1 = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader(vertShader1, fragShader1, ""));
-	std::cout << vertShader1 << std::endl;
-	std::cout << fragShader1 << std::endl;
-
 
 	//std::shared_ptr <gameEngine::Shader> quadShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader("finalVertexShader.glsl", "finalFragmentShader.glsl", ""));
-	std::shared_ptr <gameEngine::Model> somLoad = std::make_shared <gameEngine::Model>(*new gameEngine::Model(gameEngine::Model::QUAD_MESH, glm::vec3(0.f, 0.f, 0.f), glm::vec3(90.f, 0.f, 0.f), modelShader1));
+	std::shared_ptr <gameEngine::Model> somLoad = std::make_shared <gameEngine::Model>(*new gameEngine::Model(gameEngine::Model::QUAD_MESH, glm::vec3(0.f, 0.f, 0.f), glm::vec3(90.f, 0.f, 0.f)));
 	(somLoad)->setSize(size);
 	somLoad->setMaterial(som);
 	//layerRenderer->AddMeshCall(somLoad);
@@ -30,13 +24,6 @@ void gameEngine::GameViewLayer::onAttach() {
 	//drawModel.push_back(somLoad);
 	//std::dynamic_pointer_cast<gameEngine::Quad>(somLoad)->sendToRenderer(layerRenderer);
 	gameEngine::getIMGUILayer()->addToMenu(new IMGUIJob{ &gameEngine::imguiSize,(void*)this });
-
-	std::string vertShader = sompo.getVertShader(ShaderInit::NORM_VERTIN | ShaderInit::TEX_COORDIN);
-	std::string fragShader = sompo.getFragShader(ShaderInit::NORM_VERT | ShaderInit::TEX_COORD | ShaderInit::ALBEDO_TEX | ShaderInit::SPECULAR_TEX, ShaderInit::ALBEDO_COLOR | ShaderInit::NORMAL_TEX);
-	std::cout << vertShader << std::endl;
-	std::cout << fragShader << std::endl;
-	std::shared_ptr <gameEngine::Shader> modelShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader(vertShader, fragShader, ""));
-
 
 
 	std::shared_ptr <gameEngine::Model> somLoad1 = std::make_shared <gameEngine::Model>(*new gameEngine::Model("objfile/spaceship.obj", glm::vec3(0.f, 10.f, 0.f), glm::vec3(0.f)));
@@ -59,9 +46,9 @@ void gameEngine::GameViewLayer::onAttach() {
 	std::shared_ptr <gameEngine::Shader> lightShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader("sceneLightVertexShader.glsl", "sceneLightFragmentShader.glsl", ""));
 	std::vector< std::shared_ptr <gameEngine::Texture>> somtex;
 	drawModel.push_back(somLoad1);
-	somtex.push_back(fbo->getTex(0));
-	somtex.push_back(fbo->getTex(1));
-	somtex.push_back(fbo->getTex(2));
+	//somtex.push_back(fbo->getTex(0));
+	/*somtex.push_back(fbo->getTex(1));
+	somtex.push_back(fbo->getTex(2));*/
 	/*Light* sceneLight = (new Light(somtex, lightShader, true));
 	fro->setLighting(sceneLight);
 	sceneLight->addNewLight(glm::vec3(1.f, 1.f, -1.f), glm::vec3(0.f));*/
@@ -70,7 +57,7 @@ void gameEngine::GameViewLayer::onAttach() {
 	//fro->addRenderObj(somLoad1);
 	gameEngine::GameWindow::addToManager(cam);
 
-	std::string vertShader2 = sompo.getVertShader(ShaderInit::TEX_COORDIN);
+	std::string vertShader2 = sompo.getVertShader(ShaderInit::TEX_COORDIN, ShaderInit::TEX_COORD);
 	std::string fragShader2 = sompo.getFragShader(ShaderInit::TEX_COORD | ShaderInit::ALBEDO_TEX, ShaderInit::ALBEDO_COLOR);
 
 

@@ -92,7 +92,7 @@ void gameEngine::GameWindow::initWindowLayer() {
 	somLay = new ImGUILayer();
 
 	somLay->onAttach();
-	winRenderer = std::make_shared<Renderer>(*new Renderer());
+	winRenderer = std::make_shared<Renderer>(*new Renderer(ALBEDO_TEX));
 }
 
 
@@ -105,7 +105,7 @@ void gameEngine::GameWindow::addTex(std::shared_ptr <Texture> po) {
 }
 void gameEngine::GameWindow::setFinalShader(std::shared_ptr <Shader> shad) {
 	initGameWindow()->finalShader = shad;
-	initGameWindow()->window2D = std::make_shared<Model>(*new Model(Model::QUAD_MESH, glm::vec3(0.f,0.f,0.f), glm::vec3(0.f), shad));
+	initGameWindow()->window2D = std::make_shared<Model>(*new Model(Model::QUAD_MESH, glm::vec3(0.f,0.f,0.f), glm::vec3(0.f)));
 	std::shared_ptr<Material> som = std::make_shared<Material>(*new Material(initGameWindow()->finTex[0]));
 	initGameWindow()->window2D->setMaterial(som);
 	initGameWindow()->window2D->sendToRenderer(initGameWindow()->winRenderer);
@@ -137,6 +137,7 @@ void gameEngine::GameWindow::render() {
 		//updateProjMatrix(frameObj[i]->renderObj[0]->getShader());
 		layerArr[i]->onAttach();
 	}
+	winRenderer->createShader();
 	while (!glfwWindowShouldClose(window)) {
 		manager->handleKeyboardInput(window);
 		manager->handleKeyboardEvents();
