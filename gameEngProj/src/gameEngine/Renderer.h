@@ -52,22 +52,26 @@ namespace gameEngine {
 			for(int i=0;i< somTemp.size();i++){
 				somTemp[i]->objMaterial->bind(modelShader, i,count);
 				std::string temp = "positionMatrix[" + std::to_string(i) + "]";
-				modelShader->setUniformMatrix4fv(temp.c_str(),GL_FALSE,*somTemp[i]->positionMat);
+				//modelShader->setUniformMatrix4fv(temp.c_str(),GL_FALSE,*somTemp[i]->positionMat);
+				modelShader->setUniform(temp.c_str(), glm::value_ptr(*somTemp[i]->positionMat));
 				temp = "rotationMatrix[" + std::to_string(i) + "]";
-				modelShader->setUniformMatrix4fv(temp.c_str(), GL_FALSE, *somTemp[i]->rotationMat);
+				//modelShader->setUniformMatrix4fv(temp.c_str(), GL_FALSE, *somTemp[i]->rotationMat);
+				modelShader->setUniform(temp.c_str(), glm::value_ptr(*somTemp[i]->rotationMat));
 				temp = "scaleMatrix[" + std::to_string(i) + "]";
-				modelShader->setUniformMatrix4fv(temp.c_str(), GL_FALSE, *somTemp[i]->scaleMat);
+				//modelShader->setUniformMatrix4fv(temp.c_str(), GL_FALSE, *somTemp[i]->scaleMat);
+				modelShader->setUniform(temp.c_str(), glm::value_ptr(*somTemp[i]->scaleMat));
 			}
 
 			int framebufferwidth = 800;
 			int framebufferheight = 800;
 			gameEngine::GameWindow::getFrameSize(framebufferwidth, framebufferheight);
-			glm::mat4 projMatrix(1.f);
+			static glm::mat4* projMatrix = new glm::mat4(1.f);
 			float nearPlane = 0.1f;
 			float farPlane = 100.f;
 			float fov = 53.f;
-			projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
-			modelShader->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
+			*projMatrix = glm::perspective(glm::radians(fov), static_cast<float>(framebufferwidth) / framebufferheight, nearPlane, farPlane);
+			//modelShader->setUniformMatrix4fv("projectionMatrix", GL_FALSE, projMatrix);
+			modelShader->setUniform("projectionMatrix", glm::value_ptr(*projMatrix));
 
 			cam->updateViewMatrix();
 			cam->sendToShader(modelShader);
@@ -111,7 +115,7 @@ namespace gameEngine {
 			std::string fragShader = somExample.getFragShader(fragShaderInput, fragShaderOutput);
 
 			std::shared_ptr <gameEngine::Shader> modelShader = std::make_shared <gameEngine::Shader>(*new gameEngine::Shader(vertShader, fragShader, ""));
-
+			modelShader->addUniform(somExample.getUniforms(vertShaderInput, fragShaderInput));
 			return modelShader;
 		}
 		void createShader() {
@@ -126,9 +130,11 @@ namespace gameEngine {
 			
 			for (int i = 0; i < meshArr.size();i++) {
 				meshArr[i]->shady->Use();
+				updateUniform(i, cam);
+				meshArr[i]->shady->updateUniform();
 				const MeshInstance& som = *meshArr[i];
 				//update uniforms
-				updateUniform(i, cam);
+				
 				//use uniform buffers
 				som.objMesh->preDraw();
 				som.objMesh->Draw(instanceArr[i].size());

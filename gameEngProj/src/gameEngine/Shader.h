@@ -4,6 +4,7 @@
 #include"sharedObj.h"
 
 namespace gameEngine {
+	class shaderUniform;
 	class FUN_API Shader :public sharedObj {
 	private:
 		GLuint prog_id;
@@ -14,6 +15,7 @@ namespace gameEngine {
 		GLuint loadShader(GLuint type, std::string vertexSource);
 		void linkProgram(GLuint vertexShader, GLuint fragmentShader, GLuint geometryShader = 0);
 	public:
+		std::vector<shaderUniform*>shaderUniformArr;
 		Shader(const char* vertexFile, const char* fragmentFile, const char* geometryFile);
 		Shader(std::string vertexSource, std::string fragSource, std::string geomSource);
 		~Shader();
@@ -24,6 +26,9 @@ namespace gameEngine {
 		void setUniform1i(const char* un_name, int data);
 		void setUniform2f(const char* un_name, glm::vec2& data);
 		void setUniform1f(const char* un_name, float data);
+		void updateUniform();
+		void setUniform(const char* un_name, void* data);
+		void addUniform(std::vector<shaderUniform*> som);
 		inline GLuint getID() const;
 
 

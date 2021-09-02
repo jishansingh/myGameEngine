@@ -1,7 +1,7 @@
 #pragma once
 
 #include"Shader.h"
-
+#include"CustomShader.h"
 std::string gameEngine::Shader::loadShaderSource(char* filename) {
 	std::string shaderSource = "";
 	std::string temp = "";
@@ -94,6 +94,9 @@ gameEngine::Shader::Shader(std::string vertexSource, std::string fragSource, std
 	}
 }
 gameEngine::Shader::~Shader() {
+	for (int i = 0; i < shaderUniformArr.size(); i++) {
+		delete shaderUniformArr[i];
+	}
 	glDeleteProgram(this->prog_id);
 }
 inline void gameEngine::Shader::Use() {
@@ -124,6 +127,22 @@ void gameEngine::Shader::setUniform2f(const char* un_name, glm::vec2& data) {
 }
 void gameEngine::Shader::setUniform1f(const char* un_name, float data) {
 	glUniform1f(glGetUniformLocation(this->prog_id, un_name), data);
+}
+void gameEngine::Shader::updateUniform() {
+	for (shaderUniform* som : shaderUniformArr) {
+		som->bind(this);
+	}
+}
+void gameEngine::Shader::setUniform(const char* un_name, void* data) {
+	for (shaderUniform* som : shaderUniformArr) {
+		if (som->name == un_name) {
+			som->setVal(data);
+			break;
+		}
+	}
+}
+void gameEngine::Shader::addUniform(std::vector<shaderUniform*> som) {
+	shaderUniformArr = som;
 }
 inline GLuint gameEngine::Shader::getID() const { return this->prog_id; }
 

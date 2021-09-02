@@ -67,9 +67,10 @@ void gameEngine::GameViewLayer::onAttach() {
 	somLoad2->setShader(finShader);
 	(somLoad2)->setMaterial(som);
 	GameWindow::addModel(somLoad2);*/
-	layerRenderer->createShader();
+	
 	gameEngine::GameWindow::addTex(fbo->getTex(0));
 	gameEngine::GameWindow::setFinalShader(finShader);
+	layerRenderer->createShader();
 	fbo->check();
 
 }

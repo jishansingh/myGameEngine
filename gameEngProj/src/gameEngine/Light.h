@@ -3,10 +3,10 @@
 #include"libs.h"
 #include"Core.h"
 #include"Effects/postProcessingEff.h"
-
 namespace gameEngine {
 
 	class frameRenderObject;
+	class GameViewLayer;
 	class FUN_API LightObj {
 	public:
 		glm::vec3* position;
@@ -17,8 +17,19 @@ namespace gameEngine {
 	};
 
 	class FUN_API Light {
+
+		enum lightType {
+			BLING_PHONG=1,
+			OTHER=2
+		};
+
 		std::vector<std::shared_ptr<LightObj>> lightArr;
 		std::vector<std::shared_ptr<Texture>>gbuffer;
+
+		std::shared_ptr<GameViewLayer>lightShader;
+
+
+
 		std::shared_ptr<Shader>shady;
 		std::shared_ptr<Shader>cubeShader;
 		std::shared_ptr<frameRenderObject>fro;

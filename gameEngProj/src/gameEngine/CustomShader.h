@@ -1,12 +1,104 @@
 #pragma once
 #include"Core.h"
 #include"libs.h"
-
+#include"Shader.h"
 
 
 
 
 namespace gameEngine {
+
+	class shaderUniform {
+	public:
+		std::string name;
+		enum dataType {
+			MATRIX=1,
+			VECTOR=2,
+			FLOAT=4,
+			INT=8,
+			TEXTURE=16
+		};
+		int state;
+		int dimVal;
+		void* value;
+		shaderUniform(int stateVal, std::string _name, void* somVal, int dimension) {
+			value = somVal;
+			name = _name;
+			dimVal = dimension;
+			state = stateVal;
+		}
+		void setVal(void* somVal) {
+			value = somVal;
+		}
+		void bind(Shader* som){
+			if (value == NULL) {
+				return;
+			}
+			if (state & MATRIX) {
+				switch (dimVal)
+				{
+				case 2:
+					if (state & FLOAT) {
+						glUniformMatrix2fv(glGetUniformLocation(som->getID(), name.c_str()), 1, GL_FALSE, (GLfloat*)(value));
+					}
+					break;
+				case 3:
+					if (state & FLOAT) {
+						glUniformMatrix3fv(glGetUniformLocation(som->getID(), name.c_str()), 1, GL_FALSE, (GLfloat*)(value));
+					}
+					break;
+				case 4:
+					if (state & FLOAT) {
+						glUniformMatrix4fv(glGetUniformLocation(som->getID(), name.c_str()), 1, GL_FALSE, (GLfloat*)(value));
+					}
+					break;
+				default:
+					break;
+				}
+			}
+			else if (state & VECTOR) {
+				switch (dimVal)
+				{
+				case 1:
+					if (state & FLOAT) {
+						glUniform1fv(glGetUniformLocation(som->getID(), name.c_str()), 1, (GLfloat*)(value));
+					}
+					else if (state & INT) {
+						glUniform1iv(glGetUniformLocation(som->getID(), name.c_str()), 1, (GLint*)(value));
+					}
+					break;
+				case 2:
+					if (state & FLOAT) {
+						glUniform2fv(glGetUniformLocation(som->getID(), name.c_str()), 1, (GLfloat*)(value));
+					}
+					else if (state & INT) {
+						glUniform2iv(glGetUniformLocation(som->getID(), name.c_str()), 1, (GLint*)(value));
+					}
+					break;
+				case 3:
+					if (state & FLOAT) {
+						glUniform3fv(glGetUniformLocation(som->getID(), name.c_str()), 1, (GLfloat*)(value));
+					}
+					else if (state & INT) {
+						glUniform3iv(glGetUniformLocation(som->getID(), name.c_str()), 1, (GLint*)(value));
+					}
+					break;
+				case 4:
+					if (state & FLOAT) {
+						glUniform4fv(glGetUniformLocation(som->getID(), name.c_str()), 1, (GLfloat*)(value));
+					}
+					else if (state & INT) {
+						glUniform4iv(glGetUniformLocation(som->getID(), name.c_str()), 1, (GLint*)(value));
+					}
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		
+	};
+
 	class ShaderInit {
 	public:
 		int state;
@@ -126,6 +218,35 @@ namespace gameEngine {
 			vertShaderString += "}";
 			return vertShaderString;
 		}
+
+		std::vector<shaderUniform*> getUniforms(int vertState, int fragInp, int size = 1) {
+			std::vector<shaderUniform*> somTemp;
+			if (vertState & INSTANCED) {
+				for (int i = 0; i < size; i++) {
+					somTemp.push_back(new shaderUniform(shaderUniform::MATRIX| shaderUniform::FLOAT, "positionMatrix[" + std::to_string(i) + "]", NULL, 4));
+					somTemp.push_back(new shaderUniform(shaderUniform::MATRIX| shaderUniform::FLOAT, "rotationMatrix[" + std::to_string(size) + "]", NULL, 4));
+					somTemp.push_back(new shaderUniform(shaderUniform::MATRIX| shaderUniform::FLOAT, "scaleMatrix[" + std::to_string(size) + "]", NULL, 4));
+				}
+			}
+			else {
+				for (int i = 0; i < size; i++) {
+					somTemp.push_back(new shaderUniform(shaderUniform::MATRIX| shaderUniform::FLOAT, "positionMatrix[" + std::to_string(i) + "]", NULL, 4));
+					somTemp.push_back(new shaderUniform(shaderUniform::MATRIX| shaderUniform::FLOAT, "rotationMatrix[" + std::to_string(i) + "]", NULL, 4));
+					somTemp.push_back(new shaderUniform(shaderUniform::MATRIX| shaderUniform::FLOAT, "scaleMatrix[" + std::to_string(i) + "]", NULL, 4));
+				}
+			}
+			somTemp.push_back(new shaderUniform(shaderUniform::MATRIX| shaderUniform::FLOAT, "viewMatrix", NULL, 4));
+			somTemp.push_back(new shaderUniform(shaderUniform::MATRIX| shaderUniform::FLOAT, "projectionMatrix", NULL, 4));
+
+			for (int i = 0; i < size; i++) {
+				somTemp.push_back(new shaderUniform(shaderUniform::VECTOR | shaderUniform::INT, "materialData[" + std::to_string(i) + "].albedoTex", NULL, 1));
+				somTemp.push_back(new shaderUniform(shaderUniform::VECTOR | shaderUniform::INT, "materialData[" + std::to_string(i) + "].specularTex", NULL, 1));
+				somTemp.push_back(new shaderUniform(shaderUniform::VECTOR | shaderUniform::INT, "materialData[" + std::to_string(i) + "].normalTex", NULL, 1));
+			}
+
+			return somTemp;
+		}
+
 		std::string getFragShader(int fragInp, int fragOut, int size=1) {
 			std::string fragShaderString="#version 440\n";
 			int count = 0;
@@ -163,15 +284,15 @@ namespace gameEngine {
 				#define DEF_SPECULAR vec3(0.f)\n\
 				#define DEF_COLOR vec4(1.f,0.f,0.f,1.f)\n";
 			//normal
-			if (fragInp & NORM_COLOR_INST) {
-				fragShaderString += "sampler2D normal_tex["+std::to_string(size)+"];\n";
+			/*if (fragInp & NORM_COLOR_INST) {
+				fragShaderString += "uniform sampler2D normal_tex["+std::to_string(size)+"];\n";
 			}
 			else if (fragInp & NORM_COLOR) {
-				fragShaderString += "sampler2D normal_tex;\n";
+				fragShaderString += "uniform sampler2D normal_tex;\n";
 			}
 			else if (fragInp & NORM_CONST) {
 				fragShaderString += "uniform vec3 normal_tex;\n";
-			}
+			}*/
 
 			fragShaderString += "struct Material{\n";
 			fragShaderString += "   sampler2D albedoTex;\n";
